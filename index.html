@@ -948,7 +948,7 @@
                         Notre analyse vous révèle vos campagnes zombies et optimisations à <span class="highlight-euro">+€500-2000/mois</span>.
                     </p>
                     <div class="hero-cta">
-                        <button class="btn btn-primary btn-large pulse" id="main-cta">
+                        <button class="btn btn-primary btn-large pulse" id="main-cta" onclick="testStripeButton()">
                             <i class="fas fa-rocket"></i> COMMANDER MON AUDIT €500
                         </button>
                         <div class="guarantee">
@@ -1230,7 +1230,7 @@
                 </ul>
                 
                 <div class="pricing-cta">
-                    <button class="btn btn-primary btn-large pulse" id="pricing-cta">
+                    <button class="btn btn-primary btn-large pulse" id="pricing-cta" onclick="testStripeButton()">
                         <i class="fas fa-credit-card"></i> COMMANDER MON AUDIT
                     </button>
                     <a href="#contact" class="btn btn-secondary">
@@ -1499,7 +1499,20 @@
 
     <script>
         // Stripe Configuration
-        const stripe = Stripe('pk_test_51S2JJxQb5HwBxSvGHebSzIPkZUBffnqIJ2DZHtii5arh72b3AYfpUm0Vj7voOhZIzAT7acu5vi7fTNJ7xTEJDKzD00fcqb7KGv'); // ⚠️ REMPLACER PAR VOTRE VRAIE CLÉ STRIPE !
+        const stripe = Stripe('pk_test_51S2JJxQb5HwBxSvGHebSzIPkZUBffnqIJ2DZHtii5arh72b3AYfpUm0Vj7voOhZIzAT7acu5vi7fTNJ7xTEJDKzD00fcqb7KGv');
+        
+        // FONCTION TEST SIMPLE
+        function testStripeButton() {
+            alert('Bouton cliqué ! Stripe va se lancer...');
+            console.log('Test function appelée');
+            console.log('Stripe object:', stripe);
+            
+            if (stripe) {
+                handleStripeCheckout();
+            } else {
+                alert('Erreur: Stripe non chargé !');
+            }
+        }
 
         // FAQ Toggle
         document.querySelectorAll('.faq-question').forEach(button => {
