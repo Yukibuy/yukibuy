@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit ROI Publicitaire E-commerce - Découvrez vos fuites budget | RMO Analytics</title>
+    <meta name="description" content="Analyse complète Google Ads + Facebook + Shopify. ROAS unifié, campagnes zombies, optimisations +€500-2000/mois. Audit €500 - 5 jours.">
+    <meta name="keywords" content="audit ROI, publicité e-commerce, Google Ads, Facebook Ads, Shopify, ROAS, optimisation budget">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --text: #374151;
+            --text-light: #6b7280;
+            --bg: #ffffff;
+            --bg-light: #f9fafb;
+            --border: #e5e7eb;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .container-sm {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* HEADER */
+        .header {
+            background: var(--bg);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: -0.2rem;
+        }
+
+        .nav {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover {
+            color: var(--primary);
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px rgba(30, 58, 138, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(30, 58, 138, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-large {
+            padding: 1.2rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 3rem;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+
+        .hero .subtitle {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #93c5fd;
+            margin-bottom: 1rem;
+        }
+
+        .hero .description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-cta {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .guarantee {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* SECTIONS */
+        .section {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* BEFORE/DURING/AFTER */
+        .before-after {
+            background: var(--bg-light);
+        }
+
+        .three-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .column {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .column h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .column.before h3 {
+            color: var(--danger);
+        }
+
+        .column.during h3 {
+            color: var(--accent);
+        }
+
+        .column.after h3 {
+            color: var(--secondary);
+        }
+
+        .column ul {
+            list-style: none;
+            text-align: left;
+        }
+
+        .column li {
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .column li i {
+            margin-right: 0.5rem;
+            width: 20px;
+        }
+
+        /* DELIVERABLES */
+        .deliverables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .deliverable-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--secondary);
+        }
+
+        .deliverable-item i {
+            color: var(--secondary);
+            font-size: 1.2rem;
+            margin-top: 0.2rem;
+        }
+
+        .deliverable-item h4 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .deliverable-item p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* DATA REQUIREMENTS */
+        .data-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .data-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-top: 4px solid;
+            text-align: center;
+        }
+
+        .data-card.google {
+            border-top-color: #4285f4;
+        }
+
+        .data-card.shopify {
+            border-top-color: #96bf48;
+        }
+
+        .data-card.facebook {
+            border-top-color: #1877f2;
+        }
+
+        .data-card h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .data-card ul {
+            list-style: none;
+            text-align: left;
+        }
+
+        .data-card li {
+            padding: 0.5rem 0;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .data-card li i {
+            color: var(--secondary);
+            width: 16px;
+        }
+
+        /* TESTIMONIALS */
+        .testimonials {
+            background: var(--bg-light);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .testimonial {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .testimonial::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            font-size: 4rem;
+            color: var(--primary);
+            font-family: serif;
+            opacity: 0.3;
+        }
+
+        .testimonial-content {
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .testimonial-author img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--bg-light);
+        }
+
+        .testimonial-author-info h4 {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .testimonial-author-info p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* PROCESS STEPS */
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .process-step {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .process-step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+
+        .process-step h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .process-step p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* PRICING */
+        .pricing {
+            background: var(--bg-light);
+            text-align: center;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+            border: 3px solid var(--secondary);
+            position: relative;
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary);
+            color: white;
+            padding: 0.5rem 2rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .pricing-card h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-price span {
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .pricing-features li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pricing-features li i {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .pricing-cta {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* FAQ */
+        .faq-item {
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            background: var(--bg-light);
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question:hover {
+            background: #f3f4f6;
+        }
+
+        .faq-answer {
+            padding: 0 1.5rem 1.5rem;
+            line-height: 1.7;
+            color: var(--text-light);
+        }
+
+        /* FOOTER */
+        .footer {
+            background: var(--primary);
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section p, .footer-section a {
+            color: #cbd5e1;
+            text-decoration: none;
+            line-height: 1.8;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #3b82f6;
+            padding-top: 2rem;
+            text-align: center;
+            color: #cbd5e1;
+        }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .hero .description {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .nav {
+                display: none;
+            }
+
+            .three-columns,
+            .data-cards,
+            .testimonials-grid,
+            .process-steps {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+            }
+
+            .btn {
+                padding: 1rem 1.5rem;
+                font-size: 0.95rem;
+            }
+
+            .btn-large {
+                padding: 1.1rem 2rem;
+                font-size: 1rem;
+            }
+
+            .pricing-card {
+                margin: 0 1rem;
+            }
+        }
+
+        /* ANIMATIONS */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* PULSE ANIMATION FOR CTA */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 4px 14px rgba(30, 58, 138, 0.3);
+            }
+            50% {
+                box-shadow: 0 8px 25px rgba(30, 58, 138, 0.6);
+            }
+            100% {
+                box-shadow: 0 4px 14px rgba(30, 58, 138, 0.3);
+            }
+        }
+
+        /* HIGHLIGHT NUMBERS */
+        .highlight-number {
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        .highlight-euro {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* SUCCESS PAGE */
+        .success-page {
+            display: none;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .success-page.show {
+            display: block;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2rem;
+        }
+
+        /* UPLOAD SECTION */
+        .upload-section {
+            background: var(--bg-light);
+            padding: 3rem 0;
+            border-top: 2px solid var(--secondary);
+        }
+
+        .upload-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .upload-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover,
+        .file-upload-area.dragover {
+            border-color: var(--primary);
+            background: #f8fafc;
+        }
+
+        .file-upload-area.uploading {
+            border-color: var(--secondary);
+            background: #f0fdf4;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .uploaded-files {
+            margin-top: 1rem;
+        }
+
+        .uploaded-file {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: var(--bg-light);
+            border-radius: 6px;
+            margin: 0.5rem 0;
+        }
+
+        .uploaded-file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .uploaded-file-name {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .uploaded-file-size {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .remove-file {
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .remove-file:hover {
+            background: #dc2626;
+        }
+
+        .upload-progress {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-light);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .upload-progress-bar {
+            height: 100%;
+            background: var(--secondary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .upload-status {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .upload-status.success {
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            color: #047857;
+        }
+
+        .upload-status.error {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+        }
+
+        .client-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .form-group.required label::after {
+            content: " *";
+            color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <a href="#" class="logo">RMO Analytics</a>
+                    <div class="tagline">L'audit qui révèle combien vous perdez en budget pub</div>
+                </div>
+                <nav>
+                    <ul class="nav">
+                        <li><a href="#accueil">Accueil</a></li>
+                        <li><a href="#comment-ca-marche">Comment ça marche</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="accueil">
+        <div class="container">
+            <div class="hero-content">
+                <div>
+                    <h1>Découvrez EXACTEMENT combien vous perdez en budget publicitaire</h1>
+                    <div class="subtitle">Audit ROI complet Google Ads + Facebook + Shopify en 3 jours - €500</div>
+                    <p class="description">
+                        <strong>90%</strong> des e-commerçants gaspillent <span class="highlight-euro">20-30%</span> de leur budget pub par manque de visibilité cross-platform. 
+                        Notre analyse vous révèle vos campagnes zombies et optimisations à <span class="highlight-euro">+€500-2000/mois</span>.
+                    </p>
+                    <div class="hero-cta">
+                        <button class="btn btn-primary btn-large pulse" id="main-cta">
+                            <i class="fas fa-rocket"></i> COMMANDER MON AUDIT €500
+                        </button>
+                        <div class="guarantee">
+                            <i class="fas fa-shield-alt"></i>
+                            Satisfait ou remboursé 7 jours
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BEFORE/DURING/AFTER -->
+    <section class="section before-after">
+        <div class="container">
+            <h2 class="section-title">Votre Transformation ROI en 3 Étapes</h2>
+            <div class="three-columns">
+                <div class="column before">
+                    <h3><i class="fas fa-exclamation-triangle"></i> AVANT (Vos Problèmes)</h3>
+                    <ul>
+                        <li><i class="fas fa-times" style="color: #ef4444;"></i> "Je dépense €800/mois en pub mais je sais pas si ça marche"</li>
+                        <li><i class="fas fa-times" style="color: #ef4444;"></i> "Google Ads dit ROAS 3.2, Facebook dit 4.1, Shopify autre chose"</li>
+                        <li><i class="fas fa-times" style="color: #ef4444;"></i> "Je passe 3h/semaine dans Excel sans rien comprendre"</li>
+                        <li><i class="fas fa-times" style="color: #ef4444;"></i> "J'ai arrêté une campagne rentable par erreur"</li>
+                    </ul>
+                </div>
+                
+                <div class="column during">
+                    <h3><i class="fas fa-cogs"></i> PENDANT (Notre Process)</h3>
+                    <ul>
+                        <li><i class="fas fa-upload" style="color: #f59e0b;"></i> Vous nous envoyez vos exports CSV (guides fournis)</li>
+                        <li><i class="fas fa-search-plus" style="color: #f59e0b;"></i> Notre outil unifie et analyse vos données</li>
+                        <li><i class="fas fa-calculator" style="color: #f59e0b;"></i> Calculs ROAS réels avec attribution avancée</li>
+                        <li><i class="fas fa-phone" style="color: #f59e0b;"></i> Call restitution 1h avec plan d'action</li>
+                    </ul>
+                </div>
+                
+                <div class="column after">
+                    <h3><i class="fas fa-trophy"></i> APRÈS (Vos Résultats)</h3>
+                    <ul>
+                        <li><i class="fas fa-check" style="color: #10b981;"></i> "ROAS réel unifié : <span class="highlight-number">2.8</span> (vs 4.2 affiché séparément)"</li>
+                        <li><i class="fas fa-check" style="color: #10b981;"></i> "Campagne Facebook zombie → arrêt = <span class="highlight-euro">-€200/mois</span> gaspillage"</li>
+                        <li><i class="fas fa-check" style="color: #10b981;"></i> "Redistribution optimale → <span class="highlight-euro">+€800/mois</span> profits"</li>
+                        <li><i class="fas fa-check" style="color: #10b981;"></i> "Plan d'action clair pour les 3 prochains mois"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CE QUE VOUS RECEVEZ -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Audit ROI Complet - €500</h2>
+            <p class="section-subtitle">Tout ce que vous recevez pour optimiser votre ROI publicitaire</p>
+            
+            <div class="deliverables-grid">
+                <div class="deliverable-item">
+                    <i class="fas fa-chart-line"></i>
+                    <div>
+                        <h4>Analyse 90 derniers jours toutes plateformes</h4>
+                        <p>Vue d'ensemble complète de vos performances Google Ads, Facebook et e-commerce</p>
+                    </div>
+                </div>
+                
+                <div class="deliverable-item">
+                    <i class="fas fa-target"></i>
+                    <div>
+                        <h4>ROAS réel unifié avec attribution last-click</h4>
+                        <p>Fini les données contradictoires, découvrez votre vraie performance</p>
+                    </div>
+                </div>
+                
+                <div class="deliverable-item">
+                    <i class="fas fa-skull-crossbones"></i>
+                    <div>
+                        <h4>Identification campagnes "zombies" à arrêter</h4>
+                        <p>Économisez instantanément 200-500€/mois en stoppant les campagnes déficitaires</p>
+                    </div>
+                </div>
+                
+                <div class="deliverable-item">
+                    <i class="fas fa-coins"></i>
+                    <div>
+                        <h4>Optimisation budget par canal (Google/Facebook/autres)</h4>
+                        <p>Réallocation intelligente pour maximiser votre retour sur investissement</p>
+                    </div>
+                </div>
+                
+                <div class="deliverable-item">
+                    <i class="fas fa-box"></i>
+                    <div>
+                        <h4>Performance produits avec allocation coûts publicitaires</h4>
+                        <p>Identifiez vos produits stars et les budget killers</p>
+                    </div>
+                </div>
+                
+                <div class="deliverable-item">
+                    <i class="fas fa-rocket"></i>
+                    <div>
+                        <h4>Plan d'action mensuel avec gains projetés</h4>
+                        <p>Roadmap précise pour récupérer 500-2000€/mois en 90 jours</p>
+                    </div>
+                </div>
+                
+                <div class="deliverable-item">
+                    <i class="fas fa-phone-alt"></i>
+                    <div>
+                        <h4>Call stratégie 1h avec fondateur</h4>
+                        <p>Session personnalisée pour comprendre et appliquer les recommandations</p>
+                    </div>
+                </div>
+                
+                <div class="deliverable-item">
+                    <i class="fas fa-file-pdf"></i>
+                    <div>
+                        <h4>Rapport PDF professionnel 15+ pages</h4>
+                        <p>Document complet avec graphiques, analyses et recommandations</p>
+                    </div>
+                </div>
+                
+                <div class="deliverable-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <h4>Garantie satisfait ou remboursé 7 jours</h4>
+                        <p>Zéro risque : si vous n'êtes pas convaincu, remboursement intégral</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DONNÉES REQUISES -->
+    <section class="section" style="background: var(--bg-light);">
+        <div class="container">
+            <h2 class="section-title">Quelles données nous envoyer ? (Guides détaillés fournis)</h2>
+            <p class="section-subtitle">Pas de panique ! Après paiement, vous recevez un guide détaillé pour chaque export + support par email si besoin.</p>
+            
+            <div class="data-cards">
+                <div class="data-card google">
+                    <h3><i class="fab fa-google"></i> Google Ads</h3>
+                    <ul>
+                        <li><i class="fas fa-file"></i> <strong>Fichier :</strong> GoogleAds_90jours.csv</li>
+                        <li><i class="fas fa-map-marker-alt"></i> <strong>Où :</strong> Google Ads → Rapports → Campagnes → Exporter CSV</li>
+                        <li><i class="fas fa-list"></i> <strong>Colonnes :</strong> Date, Campagne, Impressions, Clics, Coût</li>
+                        <li><i class="fas fa-clock"></i> <strong>Période :</strong> 90 derniers jours</li>
+                        <li><i class="fas fa-envelope"></i> Guide détaillé envoyé après paiement</li>
+                    </ul>
+                </div>
+                
+                <div class="data-card shopify">
+                    <h3><i class="fas fa-shopping-cart"></i> Shopify/WooCommerce</h3>
+                    <ul>
+                        <li><i class="fas fa-file"></i> <strong>Fichier :</strong> Commandes_90jours.csv</li>
+                        <li><i class="fas fa-map-marker-alt"></i> <strong>Où :</strong> Admin → Commandes → Exporter → CSV complet</li>
+                        <li><i class="fas fa-list"></i> <strong>Données :</strong> Commandes, montants, sources traffic (UTM si possible)</li>
+                        <li><i class="fas fa-clock"></i> <strong>Période :</strong> 90 derniers jours</li>
+                        <li><i class="fas fa-envelope"></i> Instructions pas-à-pas fournies</li>
+                    </ul>
+                </div>
+                
+                <div class="data-card facebook">
+                    <h3><i class="fab fa-facebook"></i> Facebook Ads</h3>
+                    <ul>
+                        <li><i class="fas fa-file"></i> <strong>Fichier :</strong> FacebookAds_90jours.csv</li>
+                        <li><i class="fas fa-map-marker-alt"></i> <strong>Où :</strong> Ads Manager → Rapports → Campagnes → Exporter</li>
+                        <li><i class="fas fa-list"></i> <strong>Colonnes :</strong> Date, Campagne, Impressions, Clics, Dépense</li>
+                        <li><i class="fas fa-clock"></i> <strong>Période :</strong> 90 derniers jours</li>
+                        <li><i class="fas fa-envelope"></i> Guide d'export détaillé inclus</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="section testimonials">
+        <div class="container">
+            <h2 class="section-title">Ils ont découvert leurs fuites de budget</h2>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        En 2 jours j'ai découvert que ma campagne Facebook perdait <span class="highlight-euro">€300/mois</span>. 
+                        Après optimisation : <span class="highlight-euro">+€900</span> de revenus ce mois. ROI de l'audit : <span class="highlight-number">1800%</span> !
+                    </div>
+                    <div class="testimonial-author">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #ff6b6b, #feca57); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">M</div>
+                        <div class="testimonial-author-info">
+                            <h4>Marie Dubois</h4>
+                            <p>Cosmétiques Bio, 180k€ CA/an</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        Résultat fou : mon meilleur produit était sous-exploité en pub. Redistribution budget → <span class="highlight-euro">+60%</span> 
+                        de ventes sur cette gamme. J'ai récupéré l'investissement en 3 semaines !
+                    </div>
+                    <div class="testimonial-author">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #4ecdc4, #44a08d); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">P</div>
+                        <div class="testimonial-author-info">
+                            <h4>Pierre Martin</h4>
+                            <p>Mode Masculine, 320k€ CA/an</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        Enfin une vision claire ! ROAS réel de <span class="highlight-number">2.1</span> vs <span class="highlight-number">4.3</span> que je croyais. 
+                        Stratégie complètement revue, économies de <span class="highlight-euro">€500/mois</span>. Merci pour cette clarté !
+                    </div>
+                    <div class="testimonial-author">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(45deg, #a8e6cf, #dcedc8); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #2d5a27; font-weight: bold;">S</div>
+                        <div class="testimonial-author-info">
+                            <h4>Sophie Bernard</h4>
+                            <p>Boutique Bio, 95k€ CA/an</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROCESSUS -->
+    <section class="section" id="comment-ca-marche">
+        <div class="container">
+            <h2 class="section-title">Comment ça marche ?</h2>
+            <p class="section-subtitle">De la commande aux recommandations : 5 jours maximum</p>
+            
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="process-step-number">1</div>
+                    <h3>COMMANDE</h3>
+                    <p>Vous payez €500 sécurisé par Stripe<br><strong>(2 min)</strong></p>
+                </div>
+                
+                <div class="process-step">
+                    <div class="process-step-number">2</div>
+                    <h3>DONNÉES</h3>
+                    <p>Vous envoyez vos CSV via nos guides<br><strong>(30 min)</strong></p>
+                </div>
+                
+                <div class="process-step">
+                    <div class="process-step-number">3</div>
+                    <h3>ANALYSE</h3>
+                    <p>Notre outil traite vos données<br><strong>(2-3 jours)</strong></p>
+                </div>
+                
+                <div class="process-step">
+                    <div class="process-step-number">4</div>
+                    <h3>RÉSULTATS</h3>
+                    <p>Rapport + call stratégie + plan d'action<br><strong>(1h)</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="section pricing" id="pricing">
+        <div class="container">
+            <h2 class="section-title">Investissement & Garantie</h2>
+            
+            <div class="pricing-card">
+                <div class="pricing-badge">OFFRE LIMITÉE</div>
+                <h3>AUDIT ROI COMPLET</h3>
+                <div class="pricing-price">€500<span> TTC</span></div>
+                
+                <ul class="pricing-features">
+                    <li><i class="fas fa-check"></i> Analyse complète 90 jours</li>
+                    <li><i class="fas fa-check"></i> ROAS unifié multi-plateformes</li>
+                    <li><i class="fas fa-check"></i> Optimisations personnalisées</li>
+                    <li><i class="fas fa-check"></i> Call stratégie 1h</li>
+                    <li><i class="fas fa-check"></i> Rapport PDF professionnel</li>
+                    <li><i class="fas fa-check"></i> Plan d'action 3 mois</li>
+                    <li><i class="fas fa-shield-alt"></i> Garantie remboursé 7j</li>
+                </ul>
+                
+                <div class="pricing-cta">
+                    <button class="btn btn-primary btn-large pulse" id="pricing-cta">
+                        <i class="fas fa-credit-card"></i> COMMANDER MON AUDIT
+                    </button>
+                    <a href="#contact" class="btn btn-secondary">
+                        <i class="fas fa-phone"></i> Questions ? Appelez-moi
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section">
+        <div class="container-sm">
+            <h2 class="section-title">Questions Fréquentes</h2>
+            
+            <div class="faq-item">
+                <button class="faq-question">
+                    Combien de temps pour recevoir l'audit ?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Maximum 5 jours ouvrés après réception de vos données. Généralement, nous livrons en 3 jours.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question">
+                    Et si je n'ai pas tous les exports ?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Pas de problème, on fait avec ce que vous avez. Même un export partiel révèle des optimisations importantes. L'essentiel est d'avoir au minimum les données de commandes et d'une plateforme publicitaire.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question">
+                    C'est sécurisé ?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Vos données restent strictement confidentielles et sont supprimées après audit. Paiement 100% sécurisé Stripe avec chiffrement bancaire.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question">
+                    Garantie ?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Si vous n'êtes pas satisfait sous 7 jours, remboursement intégral sans condition et sans justification.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question">
+                    Ça marche pour quel type de commerce ?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Tout e-commerce avec budget pub >€300/mois : mode, beauté, maison, tech, alimentaire, services en ligne... L'important est d'avoir du trafic payant à analyser.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question">
+                    Et après l'audit ?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Vous appliquez nos recommandations en autonomie avec notre plan d'action détaillé. Suivi mensuel optionnel disponible sur demande.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question">
+                    Différence avec Google Analytics ?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    GA ne fait pas l'attribution cross-platform ni les recommandations business concrètes. Nous unifions toutes vos sources + plan d'action chiffré pour économiser et gagner plus.
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <button class="faq-question">
+                    Remboursement comment ?
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="faq-answer">
+                    Email à contact@yukibuy.com avec votre demande, remboursement sous 48h sur votre carte de paiement.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>RMO Analytics</h4>
+                    <p>L'audit ROI qui révèle combien vous perdez en budget publicitaire</p>
+                    <p><i class="fas fa-envelope"></i> contact@yukibuy.com</p>
+                    <p><i class="fas fa-phone"></i> 09 52 83 46 80</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <a href="#pricing">Audit ROI Complet</a><br>
+                    <a href="#comment-ca-marche">Comment ça marche</a><br>
+                    <a href="#">Suivi mensuel</a><br>
+                    <a href="#">Formation ROI</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Légal</h4>
+                    <a href="#">Mentions légales</a><br>
+                    <a href="#">CGV</a><br>
+                    <a href="#">Politique de confidentialité</a><br>
+                    <a href="#">Remboursements</a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 RMO Analytics - Audit ROI E-commerce depuis 2024. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SUCCESS PAGE (Hidden by default) -->
+    <div class="success-page" id="success-page">
+        <div class="container-sm">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h1>Paiement confirmé ! Audit lancé 🚀</h1>
+            <p style="font-size: 1.2rem; margin: 2rem 0; color: var(--secondary); font-weight: 600;">
+                Merci pour votre confiance ! Votre audit ROI démarre maintenant.
+            </p>
+            
+            <div style="background: var(--bg-light); padding: 2rem; border-radius: 12px; margin: 3rem 0; text-align: left;">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">📧 Prochaines étapes :</h3>
+                <ol style="line-height: 2; color: var(--text);">
+                    <li><strong>Email de confirmation</strong> envoyé avec tous les guides d'export détaillés</li>
+                    <li><strong>Envoyez vos fichiers CSV</strong> sous 48h (guides step-by-step fournis)</li>
+                    <li><strong>Analyse de vos données</strong> par notre équipe (2-3 jours)</li>
+                    <li><strong>Réception de votre rapport</strong> + calendrier pour votre call stratégie</li>
+                </ol>
+            </div>
+            
+            <div style="margin: 3rem 0;">
+                <a href="mailto:contact@yukibuy.com" class="btn btn-primary" style="margin-right: 1rem;">
+                    <i class="fas fa-envelope"></i> Nous contacter
+                </a>
+                <a href="https://calendly.com/yukibuy" class="btn btn-secondary" target="_blank">
+                    <i class="fas fa-calendar"></i> Booker mon call restitution
+                </a>
+            </div>
+            
+            <p style="color: var(--text-light); font-size: 0.9rem;">
+                Questions ? Répondez simplement à l'email de confirmation ou appelez-nous au 09 52 83 46 80
+            </p>
+        </div>
+    </div>
+
+    <!-- UPLOAD SECTION (Visible après paiement) -->
+    <div class="upload-section" id="upload-section" style="display: none;">
+        <div class="upload-container">
+            <h2 style="text-align: center; color: var(--primary); margin-bottom: 1rem;">
+                📁 Envoyez vos fichiers CSV pour l'audit
+            </h2>
+            <p style="text-align: center; color: var(--text-light); margin-bottom: 2rem;">
+                Uploadez vos exports Google Ads, Facebook Ads et e-commerce pour que nous puissions analyser vos données
+            </p>
+            
+            <form class="upload-form" id="csv-upload-form">
+                <!-- Informations client -->
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">📋 Vos informations</h3>
+                <div class="client-info">
+                    <div class="form-group required">
+                        <label for="client-name">Nom complet</label>
+                        <input type="text" id="client-name" name="clientName" required>
+                    </div>
+                    <div class="form-group required">
+                        <label for="client-email">Email</label>
+                        <input type="email" id="client-email" name="clientEmail" required>
+                    </div>
+                    <div class="form-group required">
+                        <label for="client-company">Entreprise</label>
+                        <input type="text" id="client-company" name="clientCompany" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="client-phone">Téléphone (optionnel)</label>
+                        <input type="tel" id="client-phone" name="clientPhone">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="monthly-budget">Budget publicitaire mensuel approximatif</label>
+                    <select id="monthly-budget" name="monthlyBudget" required>
+                        <option value="">Sélectionnez votre budget</option>
+                        <option value="300-500">€300 - €500</option>
+                        <option value="500-1000">€500 - €1000</option>
+                        <option value="1000-2000">€1000 - €2000</option>
+                        <option value="2000-5000">€2000 - €5000</option>
+                        <option value="5000+">Plus de €5000</option>
+                    </select>
+                </div>
+
+                <!-- Zone d'upload -->
+                <h3 style="color: var(--primary); margin: 2rem 0 1rem;">📤 Upload des fichiers CSV</h3>
+                
+                <div class="file-upload-area" id="upload-area">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">
+                        Glissez-déposez vos fichiers CSV ici ou cliquez pour sélectionner
+                    </div>
+                    <div class="upload-subtext">
+                        Formats acceptés: .csv, .xlsx (Max: 10MB par fichier)
+                    </div>
+                    <input type="file" 
+                           id="csv-files" 
+                           name="csvFiles" 
+                           multiple 
+                           accept=".csv,.xlsx,.xls" 
+                           class="file-input">
+                </div>
+
+                <div class="upload-progress" id="upload-progress">
+                    <div class="upload-progress-bar" id="upload-progress-bar"></div>
+                </div>
+
+                <div class="uploaded-files" id="uploaded-files"></div>
+
+                <div class="upload-status" id="upload-status"></div>
+
+                <!-- Instructions détaillées -->
+                <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+                    <h4 style="color: var(--primary); margin-bottom: 1rem;">📝 Fichiers à envoyer :</h4>
+                    <ul style="color: var(--text); line-height: 1.8;">
+                        <li><strong>Google Ads :</strong> GoogleAds_90jours.csv (Campagnes + performances 90 derniers jours)</li>
+                        <li><strong>Facebook Ads :</strong> FacebookAds_90jours.csv (Campagnes + dépenses 90 derniers jours)</li>
+                        <li><strong>Shopify/WooCommerce :</strong> Commandes_90jours.csv (Commandes + sources UTM si possible)</li>
+                        <li><strong>Catalogue produits :</strong> Produits.csv (Optionnel mais recommandé)</li>
+                    </ul>
+                </div>
+
+                <div class="form-group">
+                    <label for="additional-notes">Notes ou questions pour l'analyste (optionnel)</label>
+                    <textarea id="additional-notes" 
+                              name="additionalNotes" 
+                              rows="3" 
+                              placeholder="Contexte spécifique, difficultés rencontrées, questions..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-large" style="width: 100%; margin-top: 1rem;">
+                    <i class="fas fa-paper-plane"></i> Envoyer les fichiers pour l'audit
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Stripe Configuration
+        const stripe = Stripe('pk_test_51234567890abcdef'); // Remplacer par votre clé publique Stripe
+
+        // FAQ Toggle
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const faqItem = button.parentElement;
+                const answer = faqItem.querySelector('.faq-answer');
+                const icon = button.querySelector('i');
+                
+                if (answer.style.display === 'block') {
+                    answer.style.display = 'none';
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    // Fermer tous les autres FAQ
+                    document.querySelectorAll('.faq-answer').forEach(ans => ans.style.display = 'none');
+                    document.querySelectorAll('.faq-question i').forEach(ic => ic.style.transform = 'rotate(0deg)');
+                    
+                    answer.style.display = 'block';
+                    icon.style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+
+        // Stripe Checkout
+        async function handleStripeCheckout() {
+            try {
+                const { error } = await stripe.redirectToCheckout({
+                    lineItems: [{
+                        price_data: {
+                            currency: 'eur',
+                            product_data: {
+                                name: 'Audit ROI Publicitaire E-commerce',
+                                description: 'Analyse complète Google Ads + Facebook + Shopify - ROAS unifié + Plan d\'action personnalisé',
+                            },
+                            unit_amount: 50000, // €500.00 en centimes
+                        },
+                        quantity: 1,
+                    }],
+                    mode: 'payment',
+                    successUrl: https://yukibuy.com?success=true,
+                    cancelUrl: https://yukibuy.com?canceled=true,
+                });
+
+                if (error) {
+                    console.error('Erreur Stripe:', error);
+                    alert('Erreur lors du paiement. Veuillez réessayer.');
+                }
+            } catch (err) {
+                console.error('Erreur:', err);
+                alert('Erreur technique. Veuillez nous contacter.');
+            }
+        }
+
+        // Event listeners pour les boutons CTA
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctaButtons = document.querySelectorAll('#main-cta, #pricing-cta');
+            ctaButtons.forEach(button => {
+                button.addEventListener('click', handleStripeCheckout);
+            });
+
+            // Vérifier si paiement réussi
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success')) {
+                // Cacher la page principale et montrer la page de succès + upload
+                document.body.innerHTML = document.getElementById('success-page').outerHTML + 
+                                        document.getElementById('upload-section').outerHTML;
+                document.querySelector('.success-page').classList.add('show');
+                document.querySelector('.upload-section').style.display = 'block';
+                
+                // Réinitialiser les event listeners pour la section upload
+                initUploadSection();
+                
+                // Envoyer email de confirmation (simulation)
+                console.log('Envoyer email de confirmation avec guides d\'export');
+            }
+
+            if (urlParams.get('canceled')) {
+                alert('Paiement annulé. Vous pouvez recommencer quand vous voulez !');
+            }
+        });
+
+        // Smooth scrolling pour les ancres
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Animation fade-in au scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observer les sections
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // GESTION UPLOAD CSV
+        function initUploadSection() {
+            const uploadArea = document.getElementById('upload-area');
+            const fileInput = document.getElementById('csv-files');
+            const uploadedFiles = document.getElementById('uploaded-files');
+            const uploadForm = document.getElementById('csv-upload-form');
+            const uploadProgress = document.getElementById('upload-progress');
+            const uploadProgressBar = document.getElementById('upload-progress-bar');
+            const uploadStatus = document.getElementById('upload-status');
+
+            let selectedFiles = [];
+
+            // Gestion drag & drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = Array.from(e.dataTransfer.files);
+                handleFiles(files);
+            });
+
+            // Clic sur la zone d'upload
+            uploadArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // Sélection de fichiers
+            fileInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                handleFiles(files);
+            });
+
+            // Traitement des fichiers sélectionnés
+            function handleFiles(files) {
+                files.forEach(file => {
+                    if (validateFile(file)) {
+                        selectedFiles.push(file);
+                        displayFile(file);
+                    }
+                });
+            }
+
+            // Validation des fichiers
+            function validateFile(file) {
+                const allowedTypes = ['.csv', '.xlsx', '.xls'];
+                const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+                const maxSize = 10 * 1024 * 1024; // 10MB
+
+                if (!allowedTypes.includes(fileExtension)) {
+                    showUploadStatus('Format non accepté. Utilisez .csv ou .xlsx', 'error');
+                    return false;
+                }
+
+                if (file.size > maxSize) {
+                    showUploadStatus('Fichier trop volumineux (max 10MB)', 'error');
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Affichage des fichiers uploadés
+            function displayFile(file) {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'uploaded-file';
+                fileElement.innerHTML = `
+                    <div class="uploaded-file-info">
+                        <i class="fas fa-file-csv" style="color: var(--secondary); margin-right: 0.5rem;"></i>
+                        <div>
+                            <div class="uploaded-file-name">${file.name}</div>
+                            <div class="uploaded-file-size">${(file.size / 1024).toFixed(1)} KB</div>
+                        </div>
+                    </div>
+                    <button type="button" class="remove-file" onclick="removeFile('${file.name}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                uploadedFiles.appendChild(fileElement);
+            }
+
+            // Suppression d'un fichier
+            window.removeFile = function(fileName) {
+                selectedFiles = selectedFiles.filter(file => file.name !== fileName);
+                const fileElements = uploadedFiles.querySelectorAll('.uploaded-file');
+                fileElements.forEach(element => {
+                    if (element.querySelector('.uploaded-file-name').textContent === fileName) {
+                        element.remove();
+                    }
+                });
+            };
+
+            // Soumission du formulaire
+            uploadForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                if (selectedFiles.length === 0) {
+                    showUploadStatus('Veuillez sélectionner au moins un fichier CSV', 'error');
+                    return;
+                }
+
+                const formData = new FormData();
+                
+                // Ajouter les informations du client
+                formData.append('clientName', document.getElementById('client-name').value);
+                formData.append('clientEmail', document.getElementById('client-email').value);
+                formData.append('clientCompany', document.getElementById('client-company').value);
+                formData.append('clientPhone', document.getElementById('client-phone').value);
+                formData.append('monthlyBudget', document.getElementById('monthly-budget').value);
+                formData.append('additionalNotes', document.getElementById('additional-notes').value);
+
+                // Ajouter les fichiers
+                selectedFiles.forEach((file, index) => {
+                    formData.append(`csvFile_${index}`, file);
+                });
+
+                // Afficher la progression
+                uploadProgress.style.display = 'block';
+                uploadArea.classList.add('uploading');
+
+                try {
+                    const response = await fetch('/api/upload-csv', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        showUploadStatus('✅ Fichiers envoyés avec succès ! Nous analysons vos données et vous recontactons sous 48h.', 'success');
+                        uploadForm.reset();
+                        uploadedFiles.innerHTML = '';
+                        selectedFiles = [];
+                    } else {
+                        throw new Error('Erreur lors de l\'envoi');
+                    }
+                } catch (error) {
+                    showUploadStatus('❌ Erreur lors de l\'envoi. Veuillez réessayer ou nous contacter.', 'error');
+                    console.error('Upload error:', error);
+                } finally {
+                    uploadProgress.style.display = 'none';
+                    uploadArea.classList.remove('uploading');
+                }
+            });
+
+            // Affichage des messages de statut
+            function showUploadStatus(message, type) {
+                uploadStatus.textContent = message;
+                uploadStatus.className = `upload-status ${type}`;
+                uploadStatus.style.display = 'block';
+                
+                setTimeout(() => {
+                    uploadStatus.style.display = 'none';
+                }, type === 'success' ? 10000 : 5000);
+            }
+        }
+
+        // Initialiser l'upload si la section est visible
+        if (document.getElementById('upload-section')) {
+            initUploadSection();
+        }
+    </script>
+</body>
+</html>

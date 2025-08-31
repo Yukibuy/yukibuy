@@ -1,0 +1,19 @@
+{
+  "name": "yukibuy-landing",
+  "version": "1.0.0",
+  "description": "Landing page audit ROI avec upload CSV et paiement Stripe",
+  "main": "index.html",
+  "dependencies": {
+    "stripe": "^14.0.0",
+    "nodemailer": "^6.9.0",
+    "formidable": "^3.5.0",
+    "uuid": "^9.0.0"
+  },
+  "scripts": {
+    "build": "echo 'No build process needed for static site'",
+    "dev": "netlify dev"
+  },
+  "keywords": ["audit", "roi", "e-commerce", "stripe", "csv"],
+  "author": "YukiBuy",
+  "license": "MIT"
+}
