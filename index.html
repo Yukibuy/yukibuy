@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Stripe -->
-    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://js.stripe.com/v3/" onload="console.log('Stripe.js chargé !')" onerror="console.error('Erreur chargement Stripe.js')"></script>
     
     <style>
         :root {
@@ -1498,21 +1498,55 @@
     </div>
 
     <script>
-        // Stripe Configuration
-        const stripe = Stripe('pk_test_51S2JJxQb5HwBxSvGHebSzIPkZUBffnqIJ2DZHtii5arh72b3AYfpUm0Vj7voOhZIzAT7acu5vi7fTNJ7xTEJDKzD00fcqb7KGv');
+        // TEST DE BASE AU CHARGEMENT
+        console.log('=== DÉBUT SCRIPT ===');
+        console.log('Page chargée, script en cours...');
         
-        // FONCTION TEST SIMPLE
+        // FONCTION TEST ULTRA-SIMPLE  
         function testStripeButton() {
-            alert('Bouton cliqué ! Stripe va se lancer...');
-            console.log('Test function appelée');
-            console.log('Stripe object:', stripe);
+            console.log('=== FONCTION TESTSTRIPEBUTTON APPELÉE ===');
+            alert('🔥 BOUTON FONCTIONNE !');
             
-            if (stripe) {
-                handleStripeCheckout();
-            } else {
-                alert('Erreur: Stripe non chargé !');
+            // Test Stripe
+            if (typeof Stripe === 'undefined') {
+                alert('❌ Stripe.js pas chargé !');
+                return;
+            }
+            
+            console.log('Stripe available:', typeof Stripe);
+            
+            try {
+                const stripe = Stripe('pk_test_51S2JJxQb5HwBxSvGHebSzIPkZUBffnqIJ2DZHtii5arh72b3AYfpUm0Vj7voOhZIzAT7acu5vi7fTNJ7xTEJDKzD00fcqb7KGv');
+                console.log('Stripe instance créée:', stripe);
+                
+                stripe.redirectToCheckout({
+                    lineItems: [{
+                        price_data: {
+                            currency: 'eur',
+                            product_data: {
+                                name: 'Audit ROI Publicitaire E-commerce',
+                            },
+                            unit_amount: 50000, // €500
+                        },
+                        quantity: 1,
+                    }],
+                    mode: 'payment',
+                    successUrl: 'https://yukibuy.com?success=true',
+                    cancelUrl: 'https://yukibuy.com?canceled=true',
+                });
+                
+            } catch (error) {
+                console.error('Erreur Stripe:', error);
+                alert('❌ Erreur Stripe: ' + error.message);
             }
         }
+        
+        // Test au chargement de la page
+        window.addEventListener('load', function() {
+            console.log('=== WINDOW LOAD EVENT ===');
+            console.log('Stripe disponible ?', typeof Stripe);
+            console.log('Document ready');
+        });
 
         // FAQ Toggle
         document.querySelectorAll('.faq-question').forEach(button => {
