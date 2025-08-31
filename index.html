@@ -1524,6 +1524,8 @@
 
         // Stripe Checkout
         async function handleStripeCheckout() {
+            console.log('handleStripeCheckout appelée !'); // DEBUG
+            console.log('Stripe object:', stripe); // DEBUG
             try {
                 const { error } = await stripe.redirectToCheckout({
                     lineItems: [{
@@ -1555,8 +1557,13 @@
         // Event listeners pour les boutons CTA
         document.addEventListener('DOMContentLoaded', function() {
             const ctaButtons = document.querySelectorAll('#main-cta, #pricing-cta');
+            console.log('Boutons trouvés:', ctaButtons.length); // DEBUG
+            
             ctaButtons.forEach(button => {
-                button.addEventListener('click', handleStripeCheckout);
+                button.addEventListener('click', function(e) {
+                    console.log('Bouton cliqué !'); // DEBUG
+                    handleStripeCheckout();
+                });
             });
 
             // Vérifier si paiement réussi
