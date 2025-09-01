@@ -30,19 +30,27 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    console.log('🚀 UPLOAD FUNCTION CALLED');
+    console.log('Method:', event.httpMethod);
+    console.log('Headers:', JSON.stringify(event.headers));
+    
     // Parse multipart form data
     const form = formidable({
       maxFiles: 10,
       maxFileSize: 10 * 1024 * 1024, // 10MB
       filter: ({ mimetype }) => {
+        console.log('File mimetype:', mimetype);
         return mimetype && (
           mimetype.includes('csv') ||
           mimetype.includes('spreadsheet') ||
-          mimetype.includes('excel')
+          mimetype.includes('excel') ||
+          mimetype.includes('text/csv') ||
+          mimetype.includes('application/csv')
         );
       }
     });
 
+    console.log('🔍 Parsing form data...');
     const [fields, files] = await form.parse(event.body);
     
     console.log('📁 UPLOAD REÇU - Files:', Object.keys(files));

@@ -1731,7 +1731,7 @@
                 uploadArea.classList.add('uploading');
 
                 try {
-                    const response = await fetch('/api/upload-csv', {
+                    const response = await fetch('/.netlify/functions/upload-csv', {
                         method: 'POST',
                         body: formData
                     });
