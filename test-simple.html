@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Stripe Simple</title>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <h1>Test Stripe Ultra Simple</h1>
+    
+    <button onclick="testStripe()" style="padding: 20px; font-size: 20px; background: blue; color: white;">
+        TEST STRIPE - CLIQUEZ ICI
+    </button>
+    
+    <div id="logs" style="margin-top: 20px; background: #f0f0f0; padding: 20px;">
+        <h3>Logs :</h3>
+        <div id="log-content"></div>
+    </div>
+
+    <script>
+        // FONCTION LOG CUSTOM
+        function addLog(message) {
+            console.log(message);
+            const logDiv = document.getElementById('log-content');
+            logDiv.innerHTML += '<p>' + new Date().toLocaleTimeString() + ': ' + message + '</p>';
+        }
+        
+        // TEST AU CHARGEMENT
+        window.addEventListener('load', function() {
+            addLog('✅ Page chargée !');
+            addLog('Stripe disponible : ' + (typeof Stripe !== 'undefined' ? 'OUI' : 'NON'));
+        });
+        
+        // FONCTION TEST STRIPE
+        function testStripe() {
+            addLog('🔥 BOUTON CLIQUÉ !');
+            
+            if (typeof Stripe === 'undefined') {
+                addLog('❌ Stripe.js pas chargé !');
+                return;
+            }
+            
+            try {
+                const stripe = Stripe('pk_test_51S2JJxQb5HwBxSvGHebSzIPkZUBffnqIJ2DZHtii5arh72b3AYfpUm0Vj7voOhZIzAT7acu5vi7fTNJ7xTEJDKzD00fcqb7KGv');
+                addLog('✅ Instance Stripe créée');
+                
+                // NOUVELLE VERSION - Utilisation de l'API Payment Intents
+                stripe.redirectToCheckout({
+                    lineItems: [{
+                        price: 'price_1S2S2wQb5HwBxSvGWBeqlvcf',
+                        quantity: 1,
+                    }],
+                    mode: 'payment',
+                    successUrl: window.location.origin + '/test-simple.html?success=true',
+                    cancelUrl: window.location.origin + '/test-simple.html?canceled=true',
+                }).then(function(result) {
+                    if (result.error) {
+                        addLog('❌ Erreur Stripe: ' + result.error.message);
+                    }
+                });
+                
+            } catch (error) {
+                addLog('❌ Erreur: ' + error.message);
+            }
+        }
+        
+        // TEST SI SUCCESS
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success')) {
+            addLog('🎉 PAIEMENT RÉUSSI !');
+        }
+        if (urlParams.get('canceled')) {
+            addLog('❌ Paiement annulé');
+        }
+    </script>
+</body>
+</html>

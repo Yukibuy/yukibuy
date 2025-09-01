@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit ROI Publicitaire E-commerce | RMO Analytics</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .hero {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 4rem 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+        .btn {
+            background: #10b981;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 1rem;
+        }
+        .btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        .success-page {
+            display: none;
+            background: #d1fae5;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+        .success-page.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="main-content">
+        <h1>RMO Analytics</h1>
+        <div class="hero">
+            <h2>Découvrez EXACTEMENT combien vous perdez en budget publicitaire</h2>
+            <p>Audit ROI complet Google Ads + Facebook + Shopify en 3 jours - €500</p>
+            <button class="btn" onclick="payerAudit()">
+                🚀 COMMANDER MON AUDIT €500
+            </button>
+        </div>
+        
+        <h3>Ce que vous recevez :</h3>
+        <ul style="text-align: left; max-width: 600px; margin: 0 auto;">
+            <li>📊 Analyse 90 derniers jours toutes plateformes</li>
+            <li>🎯 ROAS réel unifié avec attribution last-click</li>
+            <li>💀 Identification campagnes "zombies" à arrêter</li>
+            <li>💰 Optimisation budget par canal (Google/Facebook/autres)</li>
+            <li>📞 Call stratégie 1h avec fondateur</li>
+            <li>📄 Rapport PDF professionnel 15+ pages</li>
+            <li>🔒 Garantie satisfait ou remboursé 7 jours</li>
+        </ul>
+    </div>
+
+    <div class="success-page" id="success-page">
+        <h2>🎉 Paiement confirmé ! Audit lancé</h2>
+        <p>Merci pour votre confiance ! Votre audit ROI démarre maintenant.</p>
+        <h3>📧 Prochaines étapes :</h3>
+        <ol style="text-align: left;">
+            <li><strong>Email de confirmation</strong> envoyé avec tous les guides d'export détaillés</li>
+            <li><strong>Envoyez vos fichiers CSV</strong> sous 48h (guides step-by-step fournis)</li>
+            <li><strong>Analyse de vos données</strong> par notre équipe (2-3 jours)</li>
+            <li><strong>Réception de votre rapport</strong> + calendrier pour votre call stratégie</li>
+        </ol>
+        <p><strong>Questions ?</strong> contact@yukibuy.com | 09 52 83 46 80</p>
+    </div>
+
+    <script>
+        console.log('🔥 INDEX MINIMAL CHARGÉ');
+        
+        // Configuration Stripe
+        const stripe = Stripe('pk_test_51S2JJxQb5HwBxSvGHebSzIPkZUBffnqIJ2DZHtii5arh72b3AYfpUm0Vj7voOhZIzAT7acu5vi7fTNJ7xTEJDKzD00fcqb7KGv');
+        console.log('Stripe configuré:', typeof stripe);
+        
+        // Fonction de paiement
+        function payerAudit() {
+            console.log('💳 BOUTON PAIEMENT CLIQUÉ !');
+            
+            stripe.redirectToCheckout({
+                lineItems: [{
+                    price: 'price_1S2S2wQb5HwBxSvGWBeqlvcf',
+                    quantity: 1,
+                }],
+                mode: 'payment',
+                successUrl: window.location.origin + '/index-minimal.html?success=true',
+                cancelUrl: window.location.origin + '/index-minimal.html?canceled=true',
+            }).catch(error => {
+                console.error('Erreur Stripe:', error);
+                alert('Erreur: ' + error.message);
+            });
+        }
+        
+        // Gestion succès
+        window.addEventListener('load', function() {
+            console.log('📄 Page chargée');
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success')) {
+                document.getElementById('main-content').style.display = 'none';
+                document.getElementById('success-page').classList.add('show');
+                console.log('✅ Page de succès affichée');
+            }
+            
+            if (urlParams.get('canceled')) {
+                alert('Paiement annulé. Vous pouvez recommencer !');
+            }
+        });
+        
+        console.log('✅ Script terminé, fonction payerAudit disponible');
+    </script>
+</body>
+</html>

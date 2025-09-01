@@ -1498,54 +1498,42 @@
     </div>
 
     <script>
-        // TEST DE BASE AU CHARGEMENT
-        console.log('=== DÉBUT SCRIPT ===');
-        console.log('Page chargée, script en cours...');
+        // Configuration Stripe
+        const stripe = Stripe('pk_test_51S2JJxQb5HwBxSvGHebSzIPkZUBffnqIJ2DZHtii5arh72b3AYfpUm0Vj7voOhZIzAT7acu5vi7fTNJ7xTEJDKzD00fcqb7KGv');
         
-        // FONCTION TEST ULTRA-SIMPLE  
+        // FONCTION STRIPE SIMPLIFIÉE
         function testStripeButton() {
-            console.log('=== FONCTION TESTSTRIPEBUTTON APPELÉE ===');
-            alert('🔥 BOUTON FONCTIONNE !');
-            
-            // Test Stripe
-            if (typeof Stripe === 'undefined') {
-                alert('❌ Stripe.js pas chargé !');
-                return;
-            }
-            
-            console.log('Stripe available:', typeof Stripe);
+            console.log('🔥 BOUTON PRINCIPAL CLIQUÉ !');
             
             try {
-                const stripe = Stripe('pk_test_51S2JJxQb5HwBxSvGHebSzIPkZUBffnqIJ2DZHtii5arh72b3AYfpUm0Vj7voOhZIzAT7acu5vi7fTNJ7xTEJDKzD00fcqb7KGv');
-                console.log('Stripe instance créée:', stripe);
-                
                 stripe.redirectToCheckout({
                     lineItems: [{
-                        price_data: {
-                            currency: 'eur',
-                            product_data: {
-                                name: 'Audit ROI Publicitaire E-commerce',
-                            },
-                            unit_amount: 50000, // €500
-                        },
+                        price: 'price_1S2S2wQb5HwBxSvGWBeqlvcf',
                         quantity: 1,
                     }],
                     mode: 'payment',
-                    successUrl: 'https://yukibuy.com?success=true',
-                    cancelUrl: 'https://yukibuy.com?canceled=true',
+                    successUrl: window.location.origin + '?success=true',
+                    cancelUrl: window.location.origin + '?canceled=true',
                 });
-                
             } catch (error) {
                 console.error('Erreur Stripe:', error);
-                alert('❌ Erreur Stripe: ' + error.message);
+                alert('Erreur: ' + error.message);
             }
         }
-        
-        // Test au chargement de la page
+
+        // Gestion page de succès
         window.addEventListener('load', function() {
-            console.log('=== WINDOW LOAD EVENT ===');
-            console.log('Stripe disponible ?', typeof Stripe);
-            console.log('Document ready');
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success')) {
+                document.body.innerHTML = document.getElementById('success-page').outerHTML + 
+                                        document.getElementById('upload-section').outerHTML;
+                document.querySelector('.success-page').classList.add('show');
+                document.querySelector('.upload-section').style.display = 'block';
+            }
+            
+            if (urlParams.get('canceled')) {
+                alert('Paiement annulé. Vous pouvez recommencer !');
+            }
         });
 
         // FAQ Toggle
