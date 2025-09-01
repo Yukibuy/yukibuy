@@ -44,6 +44,9 @@ exports.handler = async (event, context) => {
     });
 
     const [fields, files] = await form.parse(event.body);
+    
+    console.log('📁 UPLOAD REÇU - Files:', Object.keys(files));
+    console.log('📝 UPLOAD REÇU - Fields:', fields);
 
     // Extract client info
     const clientData = {
@@ -58,8 +61,10 @@ exports.handler = async (event, context) => {
       files: []
     };
 
-    // Process uploaded files
+    // Process uploaded files ET LES PRÉPARER POUR EMAIL
     const processedFiles = [];
+    const emailAttachments = [];
+    
     for (const [fieldName, fileArray] of Object.entries(files)) {
       const file = Array.isArray(fileArray) ? fileArray[0] : fileArray;
       
@@ -67,8 +72,13 @@ exports.handler = async (event, context) => {
         const fileData = await fs.readFile(file.filepath);
         const fileName = `${clientData.id}_${file.originalFilename}`;
         
-        // En production, uploader vers AWS S3, Google Cloud Storage, etc.
-        // Pour le moment, on simule le stockage
+        // Ajouter comme pièce jointe email
+        emailAttachments.push({
+          filename: fileName,
+          content: fileData,
+          contentType: file.mimetype
+        });
+        
         processedFiles.push({
           originalName: file.originalFilename,
           storedName: fileName,
@@ -85,7 +95,7 @@ exports.handler = async (event, context) => {
     }
 
     // Configuration email (utiliser des variables d'environnement)
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       service: 'gmail', // ou autre service
       auth: {
         user: process.env.EMAIL_USER,
@@ -118,12 +128,13 @@ ID CLIENT: ${clientData.id}
 À traiter dans les 48h max !
 `;
 
-    // Envoyer notification au propriétaire
+    // Envoyer notification au propriétaire AVEC LES FICHIERS EN PIÈCES JOINTES
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: 'contact@yukibuy.com', // VOTRE email
       subject: `🔥 Nouveau client audit ROI - ${clientData.company}`,
-      text: ownerEmailContent
+      text: ownerEmailContent,
+      attachments: emailAttachments // LES FICHIERS SONT ICI !
     });
 
     // Email de confirmation pour le CLIENT
