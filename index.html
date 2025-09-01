@@ -1337,6 +1337,7 @@
                     <p>L'audit ROI qui révèle combien vous perdez en budget publicitaire</p>
                     <p><i class="fas fa-envelope"></i> contact@yukibuy.com</p>
                     <p><i class="fas fa-phone"></i> 09 52 83 46 80</p>
+                    <p style="font-size: 0.9rem; color: #cbd5e1; font-style: italic;">💬 Laissez votre message, on vous rappelle rapidement !</p>
                 </div>
                 
                 <div class="footer-section">
@@ -1384,16 +1385,27 @@
             </div>
             
             <div style="margin: 3rem 0;">
-                <a href="mailto:contact@yukibuy.com" class="btn btn-primary" style="margin-right: 1rem;">
-                    <i class="fas fa-envelope"></i> contact@yukibuy.com
-                </a>
+                <button onclick="copyEmail()" class="btn btn-primary" style="margin-right: 1rem;">
+                    <i class="fas fa-envelope"></i> Copier l'email
+                </button>
                 <a href="https://calendly.com/contact-yukibuy/1h-meeting" class="btn btn-secondary" target="_blank">
                     <i class="fas fa-calendar"></i> Réserver mon call (1h)
                 </a>
             </div>
             
+            <div style="text-align: center; margin: 2rem 0;">
+                <p><strong>📞 Ou appelez directement :</strong></p>
+                <a href="tel:+33952834680" style="font-size: 1.2rem; color: var(--primary); text-decoration: none; font-weight: 600;">
+                    09 52 83 46 80
+                </a>
+                <p style="font-size: 0.9rem; color: var(--text-light); font-style: italic; margin-top: 0.5rem;">
+                    💬 Laissez votre message, on vous rappelle rapidement !
+                </p>
+            </div>
+            
             <p style="color: var(--text-light); font-size: 0.9rem;">
-                Questions ? Répondez simplement à l'email de confirmation ou appelez-nous au 09 52 83 46 80
+                Questions ? Répondez simplement à l'email de confirmation ou appelez-nous au 09 52 83 46 80 
+                <em>(laissez un message, on vous rappelle rapidement !)</em>
             </p>
         </div>
     </div>
@@ -1757,6 +1769,18 @@
         // Initialiser l'upload si la section est visible
         if (document.getElementById('upload-section')) {
             initUploadSection();
+        }
+        
+        // Fonction pour copier l'email
+        function copyEmail() {
+            const email = 'contact@yukibuy.com';
+            navigator.clipboard.writeText(email).then(function() {
+                // Succès
+                alert('✅ Email copié : ' + email + '\nCollez-le dans votre client email !');
+            }, function(err) {
+                // Fallback si clipboard API ne marche pas
+                prompt('Copiez cet email :', email);
+            });
         }
     </script>
 </body>
