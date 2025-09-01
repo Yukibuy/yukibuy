@@ -2,6 +2,13 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require('nodemailer');
 
 exports.handler = async (event, context) => {
+  console.log('🔥 WEBHOOK CALLED - Environment check:');
+  console.log('STRIPE_SECRET_KEY exists:', !!process.env.STRIPE_SECRET_KEY);
+  console.log('STRIPE_WEBHOOK_SECRET exists:', !!process.env.STRIPE_WEBHOOK_SECRET);
+  console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
+  console.log('EMAIL_PASS exists:', !!process.env.EMAIL_PASS);
+  console.log('STRIPE_WEBHOOK_SECRET value length:', process.env.STRIPE_WEBHOOK_SECRET?.length);
+
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
