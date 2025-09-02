@@ -789,7 +789,12 @@
         }
 
         .file-input {
-            display: none;
+            position: absolute;
+            opacity: 0;
+            width: 0.1px;
+            height: 0.1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
         }
 
         .uploaded-files {
@@ -1470,7 +1475,7 @@
                     
                     <!-- BOUTON VISIBLE POUR CHOISIR FICHIERS -->
                     <div style="margin-top: 1rem;">
-                        <button type="button" onclick="document.getElementById('csv-files').click()" 
+                        <button type="button" id="select-files-btn"
                                 style="padding: 0.75rem 1.5rem; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem;">
                             📁 Choisir les fichiers CSV
                         </button>
@@ -1519,6 +1524,10 @@
     </div>
 
     <script>
+        console.log('🔥 SCRIPT YUKIBUY CHARGÉ - Version 2024-09-01-17h00');
+        console.log('URL actuelle:', window.location.href);
+        console.log('Params URL:', window.location.search);
+        
         // Configuration Stripe
         const stripe = Stripe('pk_test_51S2JJxQb5HwBxSvGHebSzIPkZUBffnqIJ2DZHtii5arh72b3AYfpUm0Vj7voOhZIzAT7acu5vi7fTNJ7xTEJDKzD00fcqb7KGv');
         
@@ -1544,12 +1553,26 @@
 
         // Gestion page de succès
         window.addEventListener('load', function() {
+            console.log('🚀 PAGE LOADED');
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('success')) {
+                console.log('✅ SUCCESS PAGE - Showing upload section');
                 document.body.innerHTML = document.getElementById('success-page').outerHTML + 
                                         document.getElementById('upload-section').outerHTML;
                 document.querySelector('.success-page').classList.add('show');
                 document.querySelector('.upload-section').style.display = 'block';
+                
+                // INITIALISER L'UPLOAD APRÈS AFFICHAGE !
+                console.log('🔄 Initializing upload section...');
+                initUploadSection();
+            } else {
+                // APPEL TEMPORAIRE pour tester les fonctionnalités upload
+                console.log('🔧 DEBUG MODE - Initializing upload for testing');
+                const uploadSection = document.getElementById('upload-section');
+                if (uploadSection) {
+                    uploadSection.style.display = 'block';
+                    initUploadSection();
+                }
             }
             
             if (urlParams.get('canceled')) {
@@ -1614,6 +1637,8 @@
 
         // GESTION UPLOAD CSV
         function initUploadSection() {
+            console.log('🔄 INIT UPLOAD SECTION');
+            
             const uploadArea = document.getElementById('upload-area');
             const fileInput = document.getElementById('csv-files');
             const uploadedFiles = document.getElementById('uploaded-files');
@@ -1621,6 +1646,27 @@
             const uploadProgress = document.getElementById('upload-progress');
             const uploadProgressBar = document.getElementById('upload-progress-bar');
             const uploadStatus = document.getElementById('upload-status');
+
+            console.log('📋 Elements found:', {
+                uploadArea: !!uploadArea,
+                fileInput: !!fileInput,
+                uploadedFiles: !!uploadedFiles,
+                uploadForm: !!uploadForm
+            });
+
+            // Debug détaillé sur fileInput
+            if (fileInput) {
+                console.log('🔍 FileInput details:', {
+                    id: fileInput.id,
+                    type: fileInput.type,
+                    multiple: fileInput.multiple,
+                    accept: fileInput.accept,
+                    style: fileInput.style.display,
+                    visible: fileInput.offsetParent !== null
+                });
+            } else {
+                console.error('❌ FileInput not found!');
+            }
 
             let selectedFiles = [];
 
@@ -1642,22 +1688,86 @@
             });
 
             // Clic sur la zone d'upload
-            uploadArea.addEventListener('click', () => {
-                fileInput.click();
-            });
+            if (uploadArea) {
+                uploadArea.addEventListener('click', () => {
+                    console.log('🖱️ UPLOAD AREA CLICKED');
+                    console.log('📁 FileInput exists:', !!fileInput);
+                    if (fileInput) {
+                        console.log('🔄 Calling fileInput.click()');
+                        try {
+                            fileInput.click();
+                            console.log('✅ fileInput.click() executed');
+                        } catch (error) {
+                            console.error('❌ Error calling fileInput.click():', error);
+                        }
+                    }
+                });
+            }
+
+            // Clic sur le bouton de sélection
+            const selectFilesBtn = document.getElementById('select-files-btn');
+            console.log('🔍 Looking for select-files-btn:', selectFilesBtn);
+            
+            if (selectFilesBtn) {
+                console.log('✅ Button found, adding onclick handler');
+                // Utiliser onclick directement (plus compatible)
+                selectFilesBtn.onclick = function(e) {
+                    console.log('🔘 BUTTON CLICKED - Opening file selector');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (fileInput) {
+                        console.log('🔄 Calling fileInput.click()');
+                        fileInput.click();
+                        console.log('✅ fileInput.click() executed');
+                    }
+                };
+            } else {
+                console.error('❌ Select files button not found!');
+                // Debug: lister tous les éléments avec des IDs
+                console.log('🔍 Available elements with IDs:', 
+                    Array.from(document.querySelectorAll('[id]')).map(el => el.id)
+                );
+            }
 
             // Sélection de fichiers
             fileInput.addEventListener('change', (e) => {
+                console.log('📁 FILES SELECTED:', e.target.files.length);
                 const files = Array.from(e.target.files);
-                handleFiles(files);
+                console.log('📁 Files array:', files.map(f => f.name));
+                
+                // Traiter les nouveaux fichiers (input file = remplacer)
+                handleFiles(files, true);
             });
 
             // Traitement des fichiers sélectionnés
-            function handleFiles(files) {
+            function handleFiles(files, clearPrevious = false) {
+                console.log('🔄 HANDLE FILES:', files.length, 'Clear previous:', clearPrevious);
+                
+                // Vider la liste seulement si demandé (pour input file), pas pour drag & drop
+                if (clearPrevious) {
+                    selectedFiles = [];
+                    uploadedFiles.innerHTML = '';
+                }
+                
                 files.forEach(file => {
+                    console.log('📄 Processing file:', file.name, file.type, file.size);
+                    
+                    // Vérifier si le fichier n'est pas déjà dans la liste
+                    const isDuplicate = selectedFiles.some(existingFile => 
+                        existingFile.name === file.name && existingFile.size === file.size
+                    );
+                    
+                    if (isDuplicate) {
+                        console.log('⚠️ File already exists:', file.name);
+                        return; // Ignorer les doublons
+                    }
+                    
                     if (validateFile(file)) {
+                        console.log('✅ File valid, adding to list');
                         selectedFiles.push(file);
                         displayFile(file);
+                    } else {
+                        console.log('❌ File rejected');
                     }
                 });
             }
@@ -1730,9 +1840,17 @@
                 formData.append('monthlyBudget', document.getElementById('monthly-budget').value);
                 formData.append('additionalNotes', document.getElementById('additional-notes').value);
 
-                // Ajouter les fichiers
-                selectedFiles.forEach((file, index) => {
-                    formData.append(`csvFile_${index}`, file);
+                // Ajouter les fichiers - Prendre depuis l'input ET depuis selectedFiles
+                const filesToUpload = selectedFiles.length > 0 ? selectedFiles : Array.from(fileInput.files);
+                
+                if (filesToUpload.length === 0) {
+                    showUploadStatus('Aucun fichier sélectionné', 'error');
+                    return;
+                }
+                
+                filesToUpload.forEach((file, index) => {
+                    formData.append(`csvFiles`, file); // Utiliser le même nom que dans HTML
+                    console.log(`📎 Adding file to FormData: ${file.name} (${file.size} bytes)`);
                 });
 
                 // Afficher la progression
@@ -1775,10 +1893,7 @@
             }
         }
 
-        // Initialiser l'upload si la section est visible
-        if (document.getElementById('upload-section')) {
-            initUploadSection();
-        }
+        // Upload section initialisée dans la gestion de la page de succès
         
         // Fonction pour copier l'email
         function copyEmail() {

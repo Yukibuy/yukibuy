@@ -1,8 +1,67 @@
-const formidable = require('formidable');
 const nodemailer = require('nodemailer');
 const { v4: uuidv4 } = require('uuid');
-const fs = require('fs').promises;
-const path = require('path');
+
+// Parser multipart simple pour Netlify Functions
+function parseMultipart(body, boundary) {
+  const parts = body.split(`--${boundary}`);
+  const fields = {};
+  const files = {};
+  
+  parts.forEach(part => {
+    if (part.includes('Content-Disposition')) {
+      const lines = part.split('\r\n');
+      let name = '';
+      let filename = '';
+      let contentType = '';
+      let content = '';
+      
+      lines.forEach(line => {
+        if (line.includes('Content-Disposition')) {
+          const nameMatch = line.match(/name="([^"]+)"/);
+          const filenameMatch = line.match(/filename="([^"]+)"/);
+          if (nameMatch) name = nameMatch[1];
+          if (filenameMatch) filename = filenameMatch[1];
+        }
+        if (line.includes('Content-Type')) {
+          contentType = line.split(':')[1].trim();
+        }
+      });
+      
+      // Récupérer le contenu (après les headers)
+      const contentStart = part.indexOf('\r\n\r\n') + 4;
+      if (contentStart > 3) {
+        content = part.substring(contentStart).replace(/\r\n--$/, '');
+      }
+      
+      if (filename) {
+        // C'est un fichier
+        const fileObj = {
+          filename,
+          contentType,
+          content: Buffer.from(content, 'binary'),
+          size: Buffer.byteLength(content, 'binary')
+        };
+        
+        // Support multiple files with same field name
+        if (files[name]) {
+          // Si le champ existe déjà, convertir en tableau ou ajouter au tableau
+          if (Array.isArray(files[name])) {
+            files[name].push(fileObj);
+          } else {
+            files[name] = [files[name], fileObj];
+          }
+        } else {
+          files[name] = fileObj;
+        }
+      } else if (name && content.trim()) {
+        // C'est un champ
+        fields[name] = content.trim();
+      }
+    }
+  });
+  
+  return { fields, files };
+}
 
 exports.handler = async (event, context) => {
   // CORS headers
@@ -32,75 +91,79 @@ exports.handler = async (event, context) => {
   try {
     console.log('🚀 UPLOAD FUNCTION CALLED');
     console.log('Method:', event.httpMethod);
-    console.log('Headers:', JSON.stringify(event.headers));
+    console.log('Content-Type:', event.headers['content-type']);
     
-    // Parse multipart form data
-    const form = formidable({
-      maxFiles: 10,
-      maxFileSize: 10 * 1024 * 1024, // 10MB
-      filter: ({ mimetype }) => {
-        console.log('File mimetype:', mimetype);
-        return mimetype && (
-          mimetype.includes('csv') ||
-          mimetype.includes('spreadsheet') ||
-          mimetype.includes('excel') ||
-          mimetype.includes('text/csv') ||
-          mimetype.includes('application/csv')
-        );
-      }
-    });
-
-    console.log('🔍 Parsing form data...');
-    const [fields, files] = await form.parse(event.body);
+    // Extraire le boundary du Content-Type
+    const contentType = event.headers['content-type'] || '';
+    const boundaryMatch = contentType.match(/boundary=(.+)$/);
     
-    console.log('📁 UPLOAD REÇU - Files:', Object.keys(files));
-    console.log('📝 UPLOAD REÇU - Fields:', fields);
-
-    // Extract client info
+    if (!boundaryMatch) {
+      throw new Error('No boundary found in Content-Type header');
+    }
+    
+    const boundary = boundaryMatch[1];
+    console.log('Boundary found:', boundary);
+    
+    // Parser le body multipart
+    const body = event.isBase64Encoded ? 
+      Buffer.from(event.body, 'base64').toString('binary') : 
+      event.body;
+    
+    console.log('Body length:', body.length);
+    
+    // Parser les champs et fichiers
+    const { fields, files } = parseMultipart(body, boundary);
+    
+    console.log('📝 PARSED FIELDS:', Object.keys(fields));
+    console.log('📁 PARSED FILES:', Object.keys(files));
+    console.log('Field values:', fields);
+    
+    // Extraire les vraies données client
     const clientData = {
       id: uuidv4(),
-      name: fields.clientName?.[0] || '',
-      email: fields.clientEmail?.[0] || '',
-      company: fields.clientCompany?.[0] || '',
-      phone: fields.clientPhone?.[0] || '',
-      monthlyBudget: fields.monthlyBudget?.[0] || '',
-      notes: fields.additionalNotes?.[0] || '',
-      uploadDate: new Date().toISOString(),
-      files: []
+      name: fields.clientName || 'Non renseigné',
+      email: fields.clientEmail || 'contact@yukibuy.com',
+      company: fields.clientCompany || 'Non renseigné',
+      phone: fields.clientPhone || '',
+      monthlyBudget: fields.monthlyBudget || '',
+      notes: fields.additionalNotes || '',
+      uploadDate: new Date().toISOString()
     };
-
-    // Process uploaded files ET LES PRÉPARER POUR EMAIL
+    
+    console.log('👤 CLIENT DATA:', clientData);
+    
+    // Traiter les fichiers reçus
     const processedFiles = [];
     const emailAttachments = [];
     
-    for (const [fieldName, fileArray] of Object.entries(files)) {
-      const file = Array.isArray(fileArray) ? fileArray[0] : fileArray;
+    Object.entries(files).forEach(([fieldName, fileOrFiles]) => {
+      // Normaliser en tableau pour traitement uniforme
+      const fileArray = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles];
       
-      if (file && file.filepath) {
-        const fileData = await fs.readFile(file.filepath);
-        const fileName = `${clientData.id}_${file.originalFilename}`;
-        
-        // Ajouter comme pièce jointe email
-        emailAttachments.push({
-          filename: fileName,
-          content: fileData,
-          contentType: file.mimetype
-        });
-        
-        processedFiles.push({
-          originalName: file.originalFilename,
-          storedName: fileName,
-          size: file.size,
-          mimetype: file.mimetype
-        });
-
-        clientData.files.push({
-          originalName: file.originalFilename,
-          size: file.size,
-          type: file.mimetype
-        });
-      }
-    }
+      fileArray.forEach(file => {
+        if (file.filename && file.content && file.content.length > 0) {
+          const fileName = `${clientData.id}_${file.filename}`;
+          
+          processedFiles.push({
+            originalName: file.filename,
+            storedName: fileName,
+            size: file.size,
+            mimetype: file.contentType
+          });
+          
+          // Ajouter en pièce jointe email
+          emailAttachments.push({
+            filename: fileName,
+            content: file.content,
+            contentType: file.contentType || 'text/csv'
+          });
+          
+          console.log(`📎 File processed: ${file.filename} (${file.size} bytes)`);
+        }
+      });
+    });
+    
+    console.log(`✅ Total files processed: ${processedFiles.length}`);
 
     // Configuration email (utiliser des variables d'environnement)
     const transporter = nodemailer.createTransport({
@@ -136,14 +199,16 @@ ID CLIENT: ${clientData.id}
 À traiter dans les 48h max !
 `;
 
-    // Envoyer notification au propriétaire AVEC LES FICHIERS EN PIÈCES JOINTES
+    // Envoyer notification au propriétaire AVEC LES VRAIS FICHIERS !
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: 'contact@yukibuy.com', // VOTRE email
       subject: `🔥 Nouveau client audit ROI - ${clientData.company}`,
       text: ownerEmailContent,
-      attachments: emailAttachments // LES FICHIERS SONT ICI !
+      attachments: emailAttachments // LES VRAIS FICHIERS CSV !
     });
+    
+    console.log(`📧 Owner email sent with ${emailAttachments.length} attachments`);
 
     // Email de confirmation pour le CLIENT
     const clientEmailContent = `
@@ -172,12 +237,18 @@ L'équipe YukiBuy
 📞 09 52 83 46 80
 `;
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: clientData.email,
-      subject: '📊 Fichiers reçus - Votre audit ROI en cours',
-      text: clientEmailContent
-    });
+    // Email de confirmation au client (seulement si email valide)
+    if (clientData.email && clientData.email.includes('@') && !clientData.email.includes('example.com')) {
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: clientData.email,
+        subject: '📊 Fichiers reçus - Votre audit ROI en cours',
+        text: clientEmailContent
+      });
+      console.log(`📧 Client confirmation sent to: ${clientData.email}`);
+    } else {
+      console.log('⚠️ Client email invalid, skipping confirmation');
+    }
 
     // Log pour debugging (visible dans Netlify Functions)
     console.log('Upload successful:', {
