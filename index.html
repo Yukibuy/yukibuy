@@ -2251,6 +2251,13 @@
                 formData.append('monthlyBudget', document.getElementById('monthly-budget').value);
                 formData.append('additionalNotes', document.getElementById('additional-notes').value);
 
+                // Récupérer informations client
+                const clientInfo = {
+                    clientName: document.getElementById('client-name').value,
+                    clientEmail: document.getElementById('client-email').value,
+                    clientCompany: document.getElementById('client-company').value
+                };
+
                 // Ajouter les fichiers - Prendre depuis l'input ET depuis selectedFiles
                 const filesToUpload = selectedFiles.length > 0 ? selectedFiles : Array.from(fileInput.files);
                 
@@ -2258,10 +2265,20 @@
                     showUploadStatus('Aucun fichier sélectionné', 'error');
                     return;
                 }
-                
-                filesToUpload.forEach((file, index) => {
-                    formData.append(`csvFiles`, file); // Utiliser le même nom que dans HTML
-                    console.log(`📎 Adding file to FormData: ${file.name} (${file.size} bytes)`);
+
+                // 🚀 LOGIQUE BIFURQUÉE - CRITIQUE POUR GROS FICHIERS
+                const smallFiles = []; // ≤100MB → Netlify Functions
+                const largeFiles = []; // >100MB → Google Drive direct
+                const maxNetlifySize = 100 * 1024 * 1024; // 100MB
+
+                filesToUpload.forEach(file => {
+                    if (file.size > maxNetlifySize) {
+                        largeFiles.push(file);
+                        console.log(`☁️ Large file for Google Drive: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB)`);
+                    } else {
+                        smallFiles.push(file);
+                        console.log(`📎 Small file for Netlify: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB)`);
+                    }
                 });
 
                 // Afficher la progression
@@ -2269,22 +2286,62 @@
                 uploadArea.classList.add('uploading');
 
                 try {
-                    const response = await fetch('/.netlify/functions/upload-csv', {
-                        method: 'POST',
-                        body: formData
-                    });
+                    let allUploadsSuccessful = true;
+                    const uploadResults = [];
 
-                    if (response.ok) {
-                        const result = await response.json();
-                        showUploadStatus('✅ Fichiers envoyés avec succès ! Nous analysons vos données et vous recontactons sous 48h.', 'success');
+                    // 1️⃣ Upload petits fichiers via Netlify Functions
+                    if (smallFiles.length > 0) {
+                        console.log(`📤 Uploading ${smallFiles.length} small files via Netlify Functions`);
+                        
+                        smallFiles.forEach(file => {
+                            formData.append(`csvFiles`, file);
+                        });
+
+                        const netlifyResponse = await fetch('/.netlify/functions/upload-csv', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (netlifyResponse.ok) {
+                            const result = await netlifyResponse.json();
+                            uploadResults.push(`✅ ${smallFiles.length} fichier(s) standard(s) envoyé(s)`);
+                            console.log('✅ Netlify upload successful');
+                        } else {
+                            throw new Error(`Netlify upload failed: ${netlifyResponse.status}`);
+                        }
+                    }
+
+                    // 2️⃣ Upload gros fichiers via Google Drive
+                    if (largeFiles.length > 0) {
+                        console.log(`☁️ Uploading ${largeFiles.length} large files via Google Drive`);
+                        
+                        for (const file of largeFiles) {
+                            try {
+                                const driveResult = await uploadToGoogleDrive(file, clientInfo);
+                                uploadResults.push(`☁️ ${file.name} uploadé sur Google Drive`);
+                                console.log(`✅ Google Drive upload successful for ${file.name}`);
+                            } catch (error) {
+                                console.error(`❌ Google Drive upload failed for ${file.name}:`, error);
+                                uploadResults.push(`❌ Erreur ${file.name}: ${error.message}`);
+                                allUploadsSuccessful = false;
+                            }
+                        }
+                    }
+
+                    // Résultat final
+                    if (allUploadsSuccessful) {
+                        const successMessage = `✅ Upload terminé !\n${uploadResults.join('\n')}\n\nNous analysons vos données et vous recontactons sous 48h.`;
+                        showUploadStatus(successMessage, 'success');
                         uploadForm.reset();
                         uploadedFiles.innerHTML = '';
                         selectedFiles = [];
                     } else {
-                        throw new Error('Erreur lors de l\'envoi');
+                        const partialMessage = `⚠️ Upload partiellement réussi :\n${uploadResults.join('\n')}\n\nContactez-nous à contact@yukibuy.com pour les fichiers en erreur.`;
+                        showUploadStatus(partialMessage, 'warning');
                     }
+
                 } catch (error) {
-                    showUploadStatus('❌ Erreur lors de l\'envoi. Veuillez réessayer ou nous contacter.', 'error');
+                    showUploadStatus('❌ Erreur lors de l\'envoi. Veuillez réessayer ou nous contacter à contact@yukibuy.com', 'error');
                     console.error('Upload error:', error);
                 } finally {
                     uploadProgress.style.display = 'none';
