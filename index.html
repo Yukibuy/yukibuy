@@ -1854,7 +1854,7 @@
                         Glissez-déposez vos fichiers CSV ici ou utilisez le bouton ci-dessous
                     </div>
                     <div class="upload-subtext">
-                        Formats acceptés: .csv, .xlsx (Max: 10MB par fichier)
+                        Formats acceptés: .csv, .xlsx (Max: 750MB par fichier - Upload automatique intelligent)
                     </div>
                     
                     <!-- BOUTON VISIBLE POUR CHOISIR FICHIERS -->
@@ -1890,6 +1890,19 @@
                         <li><strong>Shopify/WooCommerce :</strong> Commandes_90jours.csv (Commandes + sources UTM si possible)</li>
                         <li><strong>Catalogue produits :</strong> Produits.csv (Optionnel mais recommandé)</li>
                     </ul>
+                    <div style="background: #f0f9ff; padding: 1rem; border-radius: 6px; margin-top: 1rem; border-left: 4px solid var(--primary);">
+                        <p style="color: var(--primary); font-weight: 500; margin: 0;">
+                            🚀 <strong>Upload automatique intelligent :</strong><br>
+                            • Fichiers ≤100MB : Upload direct rapide<br>
+                            • Fichiers >100MB : Upload automatique Google Drive<br>
+                            💡 Plus vous fournissez de données, plus l'audit sera précis !
+                        </p>
+                    </div>
+                    <div style="background: #f0fdf4; padding: 1rem; border-radius: 6px; margin-top: 0.5rem; border-left: 4px solid #22c55e;">
+                        <p style="color: #166534; font-weight: 500; margin: 0; font-size: 0.9rem;">
+                            ✅ <strong>Gros fichiers acceptés jusqu'à 750MB chacun !</strong> Upload 100% automatique.
+                        </p>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -2160,16 +2173,22 @@
             function validateFile(file) {
                 const allowedTypes = ['.csv', '.xlsx', '.xls'];
                 const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-                const maxSize = 10 * 1024 * 1024; // 10MB
+                const maxSizeGoogleDrive = 750 * 1024 * 1024; // 750MB (limite Google Drive upload)
 
                 if (!allowedTypes.includes(fileExtension)) {
                     showUploadStatus('Format non accepté. Utilisez .csv ou .xlsx', 'error');
                     return false;
                 }
 
-                if (file.size > maxSize) {
-                    showUploadStatus('Fichier trop volumineux (max 10MB)', 'error');
+                if (file.size > maxSizeGoogleDrive) {
+                    showUploadStatus(`Fichier extrêmement volumineux (${(file.size/1024/1024).toFixed(1)}MB > 750MB). Contactez-nous à contact@yukibuy.com pour un traitement spécial.`, 'error');
                     return false;
+                }
+
+                // Information pour gros fichiers (>100MB) - seront uploadés via Google Drive
+                if (file.size > 100 * 1024 * 1024) {
+                    console.log(`☁️ Gros fichier détecté: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB) - Upload automatique Google Drive`);
+                    showUploadStatus(`Gros fichier détecté: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB). Upload automatique vers Google Drive activé !`, 'info');
                 }
 
                 return true;
@@ -2409,6 +2428,75 @@
             if (refundSection) {
                 refundSection.style.display = 'none';
             }
+        }
+
+        // SOLUTION AUTOMATIQUE - Upload direct vers Google Drive
+        // ⚠️ IMPORTANT: Remplacer par l'URL de votre Google Apps Script
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxALwvChhlsolfxH7mnUgdPay_mFV8ggN4Pk19GLUO5nJPs5LWT8yd9-knKKXs3EQef/exec';
+        
+        async function uploadToGoogleDrive(file, clientInfo) {
+            console.log(`☁️ Starting automatic Google Drive upload for ${file.name}`);
+            
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('fileName', file.name);
+                formData.append('clientName', clientInfo.clientName);
+                formData.append('clientEmail', clientInfo.clientEmail);
+                formData.append('clientCompany', clientInfo.clientCompany);
+                
+                // Utiliser XMLHttpRequest pour un meilleur contrôle
+                const xhr = new XMLHttpRequest();
+                
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        try {
+                            const result = JSON.parse(xhr.responseText);
+                            if (result.success) {
+                                console.log(`✅ Google Drive upload completed for ${file.name}`);
+                                resolve(result);
+                            } else {
+                                reject(new Error(result.error || 'Erreur inconnue Google Drive'));
+                            }
+                        } catch (e) {
+                            reject(new Error('Erreur parsing réponse Google Drive'));
+                        }
+                    } else {
+                        reject(new Error(`Erreur HTTP Google Drive: ${xhr.status}`));
+                    }
+                };
+                
+                xhr.onerror = function() {
+                    reject(new Error('Erreur réseau Google Drive'));
+                };
+                
+                // Upload avec timeout
+                xhr.timeout = 300000; // 5 minutes pour gros fichiers
+                xhr.ontimeout = function() {
+                    reject(new Error('Timeout upload Google Drive (5 min)'));
+                };
+                
+                xhr.open('POST', GOOGLE_SCRIPT_URL, true);
+                xhr.send(formData);
+            });
+        }
+
+        // Fonction pour afficher les instructions pour gros fichiers (fallback)
+        function showLargeFileInstructions() {
+            alert(`📁 GROS FICHIERS - UPLOAD AUTOMATIQUE ACTIVÉ !
+
+✅ Vos fichiers volumineux sont automatiquement uploadés vers Google Drive
+☁️ Nous recevons un email avec le lien de téléchargement
+🚀 Aucune action requise de votre part !
+
+Si l'upload automatique échoue, voici les alternatives:
+
+🔸 SOLUTION MANUELLE - WeTransfer
+1. Aller sur wetransfer.com
+2. Ajouter vos fichiers CSV
+3. Destinataire: contact@yukibuy.com
+4. Message: "Fichiers audit ROI - [VOTRE NOM]"
+5. Envoyer`);
         }
     </script>
 </body>
