@@ -2050,6 +2050,14 @@
                 uploadedFiles: !!uploadedFiles,
                 uploadForm: !!uploadForm
             });
+            
+            // DEBUG SPÉCIAL
+            if (!uploadForm) {
+                console.error('❌ UPLOAD FORM NOT FOUND! Looking for ID: csv-upload-form');
+                console.log('Available forms:', document.querySelectorAll('form'));
+            } else {
+                console.log('✅ Upload form found, adding event listener');
+            }
 
             // Debug détaillé sur fileInput
             if (fileInput) {
