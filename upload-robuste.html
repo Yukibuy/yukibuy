@@ -748,10 +748,10 @@
                     const urlLength = finalUrl.length;
                     let errorMessage = 'JSONP request failed';
                     
-                    if (urlLength > 8000) {
-                        errorMessage = `URL trop longue (${urlLength} chars). Fichier trop volumineux pour mode simple.`;
-                    } else if (urlLength > 2048) {
-                        errorMessage = `URL potentiellement trop longue (${urlLength} chars). Serveur peut refuser la requête.`;
+                    if (urlLength > 15000) {
+                        errorMessage = `URL JSONP trop longue (${urlLength} chars). Chunk trop volumineux - réduisez CHUNK_SIZE.`;
+                    } else if (urlLength > 8000) {
+                        errorMessage = `URL JSONP longue (${urlLength} chars). Peut échouer sur certains serveurs.`;
                     }
                     
                     reject(new Error(errorMessage));
