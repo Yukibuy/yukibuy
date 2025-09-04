@@ -109,6 +109,10 @@ def main():
         
         print("⏳ Génération des fichiers de test...\n")
         
+        # Fichier PETIT pour test JSONP (100KB)
+        size = generate_test_file('Test_GoogleAds_100KB.csv', 0.1)  # 0.1MB = 100KB
+        files_generated.append(('Test_GoogleAds_100KB.csv', size, 'JSONP direct'))
+        
         # Fichier pour test Netlify direct
         size = generate_test_file('GoogleAds_90jours_50MB.csv', 50)
         files_generated.append(('GoogleAds_90jours_50MB.csv', size, 'Netlify direct'))

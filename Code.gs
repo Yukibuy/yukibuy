@@ -554,12 +554,25 @@ function sendNotificationEmail_(filename, fileUrl, fileSize) {
     console.log('📧 Taille:', Math.round(fileSize / 1024 / 1024 * 100) / 100, 'MB');
     console.log('📧 URL:', fileUrl);
     
-    // TEMPORAIREMENT DÉSACTIVÉ - à réactiver après tests
-    // const subject = `🚀 Nouveau fichier audit ROI - ${filename}`;
-    // const body = `NOUVEAU FICHIER REÇU: ${filename} (${Math.round(fileSize / 1024 / 1024 * 100) / 100} MB)`;
-    // GmailApp.sendEmail('contact@yukibuy.com', subject, body);
+    // EMAIL RÉACTIVÉ
+    const subject = `🚀 Nouveau fichier audit ROI - ${filename}`;
+    const body = `
+NOUVEAU FICHIER REÇU POUR AUDIT ROI
+
+📋 INFORMATIONS FICHIER:
+• Nom: ${filename}
+• Taille: ${Math.round(fileSize / 1024 / 1024 * 100) / 100} MB
+• Lien: ${fileUrl}
+
+⏰ Reçu le: ${new Date().toLocaleString('fr-FR')}
+
+---
+Traité automatiquement par YukiBuy Upload System
+`;
     
-    console.log('📧 Email notification simulée (désactivée pour debug)');
+    GmailApp.sendEmail('contact@yukibuy.com', subject, body);
+    
+    console.log('📧 Email notification envoyé à contact@yukibuy.com');
     
   } catch (error) {
     console.error('⚠️ Erreur envoi email:', error);
