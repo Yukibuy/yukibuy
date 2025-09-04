@@ -610,30 +610,35 @@
             const uploadId = initResult.uploadId;
             console.log(`🔄 Session initialisée: ${uploadId}`);
 
-            // 2. Upload par chunks
+            // 2. Upload par chunks - s'assurer que chaque chunk fait au minimum 256KB
             let start = 0;
-            const totalChunks = Math.ceil(file.size / CONFIG.CHUNK_SIZE);
             let chunkIndex = 0;
 
             while (start < file.size && !cancelToken.cancelled) {
                 chunkIndex++;
-                const end = Math.min(start + CONFIG.CHUNK_SIZE, file.size);
+                // Pour les fichiers < 256KB, uploader tout d'un coup
+                // Pour les gros fichiers, chunks de 256KB minimum
+                const remainingSize = file.size - start;
+                const chunkSize = remainingSize < CONFIG.CHUNK_SIZE ? remainingSize : CONFIG.CHUNK_SIZE;
+                const end = start + chunkSize;
                 const chunk = file.slice(start, end);
 
+                const totalChunks = Math.ceil(file.size / CONFIG.CHUNK_SIZE);
                 chunkProgress.textContent = `Chunk ${chunkIndex}/${totalChunks} (${formatBytes(start)} → ${formatBytes(end)})`;
 
                 // Lire le chunk
                 const chunkResult = await readChunk(chunk);
                 
-                // Envoyer le chunk via POST (chunks volumineux)
-                const chunkResultJson = await postChunk({
+                // Envoyer le chunk via JSONP (seul moyen sans CORS)
+                const chunkResultJson = await jsonpRequest({
                     mode: 'chunk',
                     uploadId: uploadId,
                     start: start,
                     end: end,
                     total: file.size,
-                    secret: CONFIG.SECRET
-                }, chunkResult);
+                    secret: CONFIG.SECRET,
+                    chunkData: JSON.stringify(chunkResult)
+                });
 
                 if (!chunkResultJson.success) {
                     throw new Error(chunkResultJson.message || 'Erreur chunk');

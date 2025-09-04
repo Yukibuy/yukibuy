@@ -145,7 +145,7 @@ function handleRequest(e) {
           parseInt(params.start),
           parseInt(params.end),
           parseInt(params.total),
-          e.postData ? e.postData.getBlob() : params.chunkData
+          e.postData ? e.postData.contents : params.chunkData
         );
         break;
         
@@ -452,16 +452,19 @@ function putChunk_(uploadId, start, end, total, bytesArrayJson) {
     throw new Error(`Offset incohérent: attendu=${sessionData.uploadedBytes}, reçu=${start}`);
   }
   
-  // Recomposer le chunk depuis le JSON
-  let bytesArray;
+  // Recomposer le chunk depuis les données
+  let chunkBlob;
   if (typeof bytesArrayJson === 'string') {
-    // Données JSONP ou POST string - parser le JSON
-    bytesArray = JSON.parse(bytesArrayJson);
+    // Données JSONP - parser le JSON pour obtenir l'array
+    const bytesArray = JSON.parse(bytesArrayJson);
+    chunkBlob = Utilities.newBlob(bytesArray, 'application/octet-stream');
+  } else if (bytesArrayJson && bytesArrayJson.getBytes) {
+    // Données FormData - déjà un blob
+    chunkBlob = bytesArrayJson;
   } else {
-    // Données déjà parsées
-    bytesArray = bytesArrayJson;
+    // Données array directes
+    chunkBlob = Utilities.newBlob(bytesArrayJson, 'application/octet-stream');
   }
-  const chunkBlob = Utilities.newBlob(bytesArray, 'application/octet-stream');
   
   // Envoyer le chunk à Drive
   const contentRange = `bytes ${start}-${end - 1}/${total}`;
