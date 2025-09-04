@@ -487,9 +487,14 @@
                     progressText.textContent = `Fichier ${i + 1}/${totalFiles}: ${file.name}`;
 
                     try {
+                        console.log(`🔍 File size check: ${file.name} = ${formatBytes(file.size)}`);
+                        console.log(`🔍 SIMPLE_THRESHOLD: ${formatBytes(CONFIG.SIMPLE_THRESHOLD)}`);
+                        
                         if (file.size <= CONFIG.SIMPLE_THRESHOLD) {
+                            console.log(`➡️ Using uploadSimple for ${file.name}`);
                             await uploadSimple(file);
                         } else {
+                            console.log(`➡️ Using uploadResumable for ${file.name}`);
                             await uploadResumable(file);
                         }
                         completedFiles++;
@@ -682,12 +687,17 @@
         // ========================================
         function jsonpRequest(params) {
             return new Promise((resolve, reject) => {
+                console.log('📞 JSONP request starting...', Object.keys(params));
+                
                 const callbackName = 'jsonp_callback_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
                 
                 // Créer callback global temporaire
                 window[callbackName] = function(data) {
+                    console.log('✅ JSONP callback received:', data);
                     delete window[callbackName];
-                    document.head.removeChild(script);
+                    if (document.head.contains(script)) {
+                        document.head.removeChild(script);
+                    }
                     resolve(data);
                 };
                 
@@ -697,26 +707,44 @@
                 
                 // Ajouter tous les paramètres + callback
                 Object.keys(params).forEach(key => {
+                    if (key === 'fileData') {
+                        console.log(`📦 Adding fileData: ${params[key].length} chars`);
+                    }
                     url.searchParams.append(key, params[key]);
                 });
                 url.searchParams.append('callback', callbackName);
                 
-                script.src = url.toString();
-                script.onerror = () => {
+                const finalUrl = url.toString();
+                console.log(`🌐 JSONP URL length: ${finalUrl.length} chars`);
+                console.log(`🌐 JSONP URL preview: ${finalUrl.substring(0, 200)}...`);
+                
+                script.src = finalUrl;
+                script.onerror = (error) => {
+                    console.error('❌ JSONP script error:', error);
                     delete window[callbackName];
-                    document.head.removeChild(script);
+                    if (document.head.contains(script)) {
+                        document.head.removeChild(script);
+                    }
                     reject(new Error('JSONP request failed'));
+                };
+                
+                script.onload = () => {
+                    console.log('📜 JSONP script loaded');
                 };
                 
                 // Timeout après 30 secondes
                 setTimeout(() => {
                     if (window[callbackName]) {
+                        console.log('⏰ JSONP timeout');
                         delete window[callbackName];
-                        document.head.removeChild(script);
+                        if (document.head.contains(script)) {
+                            document.head.removeChild(script);
+                        }
                         reject(new Error('JSONP request timeout'));
                     }
                 }, 30000);
                 
+                console.log('📤 Sending JSONP request...');
                 document.head.appendChild(script);
             });
         }
