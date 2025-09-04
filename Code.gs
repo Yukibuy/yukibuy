@@ -5,6 +5,7 @@
 
 // 🔧 CONFIGURATION - À PERSONNALISER
 const FOLDER_ID = 'TODO_REMPLACER_PAR_VOTRE_FOLDER_ID'; // ID du dossier Google Drive cible
+const DEBUG_MODE = true; // Mode debug - évite Drive API pour tests rapides
 const ALLOWED_ORIGIN = 'https://yukibuy.com'; // Ou '*' pour dev
 const SCRIPT_SECRET = 'yukibuy_upload_2024'; // Clé de sécurité (optionnel mais recommandé)
 const STATE_PREFIX = 'upload_'; // Préfixe pour persistence des sessions
@@ -369,84 +370,115 @@ function initResumable_(filename, mimeType, fileSize) {
   }
   console.log('✅ Métadonnées préparées:', metadata);
   
-  // APPELS DRIVE API AVEC GESTION SÉCURISÉE DES HEADERS
-  try {
-    console.log('🌐 Initialisation Drive API...');
+  // MODE DEBUG ou APPELS DRIVE API
+  if (DEBUG_MODE) {
+    console.log('🧪 MODE DEBUG - Skip Drive API init');
     
-    const initUrl = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable';
-    const token = getOAuth_();
-    console.log('🔑 Token OAuth obtenu');
-    
-    const response = UrlFetchApp.fetch(initUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'X-Upload-Content-Type': mimeType || 'application/octet-stream',
-        'X-Upload-Content-Length': fileSize.toString()
-      },
-      payload: JSON.stringify(metadata)
-    });
-    
-    const responseCode = response.getResponseCode();
-    console.log('📡 Drive API response code:', responseCode);
-    
-    if (responseCode !== 200) {
-      const errorText = response.getContentText();
-      console.error('❌ Drive API error:', errorText);
-      throw new Error(`Erreur init Drive API [${responseCode}]: ${errorText}`);
-    }
-    
-    // GESTION SÉCURISÉE DES HEADERS
-    console.log('🔍 Récupération session URI...');
-    let sessionUri = null;
-    
-    try {
-      const headers = response.getHeaders();
-      console.log('📋 Headers reçus:', Object.keys(headers));
-      
-      // Essayer plusieurs variantes de Location
-      sessionUri = headers['Location'] || headers['location'] || headers['LOCATION'];
-      
-      if (!sessionUri) {
-        console.error('❌ Headers disponibles:', headers);
-        throw new Error('Session URI manquante - headers: ' + JSON.stringify(Object.keys(headers)));
-      }
-      
-      console.log('✅ Session URI trouvée:', sessionUri.substring(0, 100) + '...');
-      
-    } catch (headerError) {
-      console.error('❌ Erreur lecture headers:', headerError);
-      throw new Error('Impossible de lire les headers de réponse Drive API: ' + headerError.message);
-    }
-    
-    // Sauvegarder l'état de la session
+    // Session factice pour test
     const sessionData = {
-      sessionUri: sessionUri,
+      sessionUri: 'DEBUG_SESSION_URI',
       filename: filename,
       mimeType: mimeType,
       fileSize: fileSize,
       uploadedBytes: 0,
       receivedBytes: 0,
-      created: Date.now()
+      created: Date.now(),
+      debug: true
     };
     
-    console.log('💾 Sauvegarde session data...');
+    console.log('💾 Sauvegarde session data (debug)...');
     const properties = PropertiesService.getScriptProperties();
     properties.setProperty(STATE_PREFIX + uploadId, JSON.stringify(sessionData));
     
-    console.log(`✅ Session initialisée: ${uploadId}`);
+    console.log(`✅ Session debug initialisée: ${uploadId}`);
     
     return {
       success: true,
       uploadId: uploadId,
-      message: 'Session d\'upload initialisée',
-      chunkSize: 256 * 1024 // 256 KB - minimum requis par Google Drive API
+      message: 'Session debug initialisée (pas de Drive API)',
+      chunkSize: 256 * 1024
     };
     
-  } catch (driveError) {
-    console.error('❌ Erreur Drive API complète:', driveError);
-    throw new Error('Échec initialisation Drive API: ' + driveError.message);
+  } else {
+    // APPELS DRIVE API AVEC GESTION SÉCURISÉE DES HEADERS
+    try {
+      console.log('🌐 Initialisation Drive API...');
+      
+      const initUrl = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable';
+      const token = getOAuth_();
+      console.log('🔑 Token OAuth obtenu');
+      
+      const response = UrlFetchApp.fetch(initUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'X-Upload-Content-Type': mimeType || 'application/octet-stream',
+          'X-Upload-Content-Length': fileSize.toString()
+        },
+        payload: JSON.stringify(metadata)
+      });
+      
+      const responseCode = response.getResponseCode();
+      console.log('📡 Drive API response code:', responseCode);
+      
+      if (responseCode !== 200) {
+        const errorText = response.getContentText();
+        console.error('❌ Drive API error:', errorText);
+        throw new Error(`Erreur init Drive API [${responseCode}]: ${errorText}`);
+      }
+      
+      // GESTION SÉCURISÉE DES HEADERS
+      console.log('🔍 Récupération session URI...');
+      let sessionUri = null;
+      
+      try {
+        const headers = response.getHeaders();
+        console.log('📋 Headers reçus:', Object.keys(headers));
+        
+        // Essayer plusieurs variantes de Location
+        sessionUri = headers['Location'] || headers['location'] || headers['LOCATION'];
+        
+        if (!sessionUri) {
+          console.error('❌ Headers disponibles:', headers);
+          throw new Error('Session URI manquante - headers: ' + JSON.stringify(Object.keys(headers)));
+        }
+        
+        console.log('✅ Session URI trouvée:', sessionUri.substring(0, 100) + '...');
+        
+      } catch (headerError) {
+        console.error('❌ Erreur lecture headers:', headerError);
+        throw new Error('Impossible de lire les headers de réponse Drive API: ' + headerError.message);
+      }
+      
+      // Sauvegarder l'état de la session
+      const sessionData = {
+        sessionUri: sessionUri,
+        filename: filename,
+        mimeType: mimeType,
+        fileSize: fileSize,
+        uploadedBytes: 0,
+        receivedBytes: 0,
+        created: Date.now()
+      };
+      
+      console.log('💾 Sauvegarde session data...');
+      const properties = PropertiesService.getScriptProperties();
+      properties.setProperty(STATE_PREFIX + uploadId, JSON.stringify(sessionData));
+      
+      console.log(`✅ Session initialisée: ${uploadId}`);
+      
+      return {
+        success: true,
+        uploadId: uploadId,
+        message: 'Session d\'upload initialisée',
+        chunkSize: 256 * 1024 // 256 KB - minimum requis par Google Drive API
+      };
+      
+    } catch (driveError) {
+      console.error('❌ Erreur Drive API complète:', driveError);
+      throw new Error('Échec initialisation Drive API: ' + driveError.message);
+    }
   }
 }
 
@@ -511,6 +543,41 @@ function putChunk_(uploadId, start, end, total, bytesArrayJson) {
   
   if (bufferReady && sessionData.buffer.length > 0) {
     console.log(`📤 Envoi buffer à Drive: ${sessionData.buffer.length} bytes`);
+    
+    if (sessionData.debug) {
+      console.log('🧪 MODE DEBUG - Skip Drive upload, simulate success');
+      
+      // Simuler succès en mode debug
+      sessionData.uploadedBytes = sessionData.bufferStart + sessionData.buffer.length;
+      sessionData.buffer = [];
+      sessionData.bufferStart = sessionData.uploadedBytes;
+      properties.setProperty(STATE_PREFIX + uploadId, JSON.stringify(sessionData));
+      
+      // Simuler completion si c'est le dernier chunk
+      if (isLastChunk) {
+        console.log(`✅ Upload DEBUG terminé: ${sessionData.filename}`);
+        properties.deleteProperty(STATE_PREFIX + uploadId);
+        
+        return {
+          success: true,
+          completed: true,
+          id: 'DEBUG_FILE_ID',
+          name: sessionData.filename,
+          url: 'https://drive.google.com/file/d/DEBUG_FILE_ID/view',
+          size: total,
+          message: 'Upload DEBUG terminé avec succès'
+        };
+      } else {
+        return {
+          success: true,
+          nextStart: sessionData.receivedBytes,
+          bytesReceived: sessionData.receivedBytes,
+          totalBytes: total,
+          progress: Math.round((sessionData.receivedBytes / total) * 100),
+          driveProgress: Math.round((sessionData.uploadedBytes / total) * 100)
+        };
+      }
+    }
     
     // Créer le blob depuis le buffer
     const bufferBlob = Utilities.newBlob(sessionData.buffer, 'application/octet-stream');
