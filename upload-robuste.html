@@ -282,7 +282,8 @@
                     <li><strong>Quota Google Drive :</strong> 750 GB/jour par utilisateur</li>
                     <li><strong>Taille par fichier :</strong> Support théorique > 1 GB (Drive), limité par browser RAM</li>
                     <li><strong>Mode simple :</strong> Désactivé (JSONP inadapté aux données binaires)</li>
-                    <li><strong>Mode résumable :</strong> Tous fichiers (chunks de 256 KB via POST avec reprise automatique)</li>
+                    <li><strong>Mode résumable :</strong> Tous fichiers (chunks de 64 KB via JSONP avec reprise automatique)</li>
+                    <li><strong>CORS :</strong> Contournement complet via JSONP - pas de requêtes POST/OPTIONS</li>
                 </ul>
                 <p><strong>Bonnes pratiques :</strong> Compressez en ZIP si possible, évitez > 500 MB pour un meilleur confort.</p>
                 
@@ -305,7 +306,7 @@
         const CONFIG = {
             APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzj5eIZHLtkVZEvGLNIP6MV7ncah-R7Jb7myK2iiWX2tbXzE3uB6Vi2vEBpQ2YFl9AL/exec',
             SIMPLE_THRESHOLD: 0, // Désactivé - tous fichiers en mode résumable
-            CHUNK_SIZE: 256 * 1024, // 256 KB - minimum requis par Google Drive API
+            CHUNK_SIZE: 64 * 1024, // 64 KB - compromis entre performance et taille URL JSONP
             SECRET: 'yukibuy_upload_2024',
             ALLOWED_TYPES: ['.csv', '.xlsx', '.xls', '.zip', '.pdf'],
             MAX_FILE_SIZE: 1024 * 1024 * 1024 // 1 GB
@@ -594,18 +595,14 @@
         async function uploadResumable(file) {
             console.log(`☁️ Upload résumable: ${file.name} (${formatBytes(file.size)})`);
 
-            // 1. Initialiser la session avec POST
-            const initResult = await fetch(CONFIG.APPS_SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({
-                    mode: 'init',
-                    filename: file.name,
-                    mimeType: file.type,
-                    fileSize: file.size.toString(),
-                    secret: CONFIG.SECRET
-                })
-            }).then(r => r.json());
+            // 1. Initialiser la session avec JSONP (seule méthode sans CORS)
+            const initResult = await jsonpRequest({
+                mode: 'init',
+                filename: file.name,
+                mimeType: file.type,
+                fileSize: file.size.toString(),
+                secret: CONFIG.SECRET
+            });
 
             if (!initResult.success) {
                 throw new Error(initResult.message || 'Échec initialisation');
@@ -633,20 +630,16 @@
                 // Lire le chunk
                 const chunkResult = await readChunk(chunk);
                 
-                // Envoyer le chunk via POST
-                const chunkResultJson = await fetch(CONFIG.APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        mode: 'chunk',
-                        uploadId: uploadId,
-                        start: start,
-                        end: end,
-                        total: file.size,
-                        secret: CONFIG.SECRET,
-                        chunkData: chunkResult
-                    })
-                }).then(r => r.json());
+                // Envoyer le chunk via JSONP pour éviter CORS
+                const chunkResultJson = await jsonpRequest({
+                    mode: 'chunk',
+                    uploadId: uploadId,
+                    start: start,
+                    end: end,
+                    total: file.size,
+                    secret: CONFIG.SECRET,
+                    chunkData: JSON.stringify(chunkResult)
+                });
 
                 if (!chunkResultJson.success) {
                     throw new Error(chunkResultJson.message || 'Erreur chunk');
