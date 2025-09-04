@@ -306,7 +306,7 @@
         const CONFIG = {
             APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyipo5YLn9S9EDRLDaOOk3CFbzcwAzk7cQ4Ik56AuMt5cZ_fBXZv3VQlaLib_ANoQQh/exec',
             SIMPLE_THRESHOLD: 0, // Désactivé - tous fichiers en mode résumable
-            CHUNK_SIZE: 1 * 1024, // 1 KB - taille ultra-réduite pour JSONP (JSON ~5KB max)
+            CHUNK_SIZE: 4 * 1024, // 4 KB - compromis performance/URLs (JSON ~20KB max)
             SECRET: 'yukibuy_upload_2024',
             ALLOWED_TYPES: ['.csv', '.xlsx', '.xls', '.zip', '.pdf'],
             MAX_FILE_SIZE: 1024 * 1024 * 1024 // 1 GB
