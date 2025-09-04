@@ -281,8 +281,8 @@
                     <li><strong>Quotas Apps Script :</strong> 6 min par exécution, 90 min/jour par utilisateur</li>
                     <li><strong>Quota Google Drive :</strong> 750 GB/jour par utilisateur</li>
                     <li><strong>Taille par fichier :</strong> Support théorique > 1 GB (Drive), limité par browser RAM</li>
-                    <li><strong>Mode simple :</strong> ≤ 50 KB (upload direct via JSONP)</li>
-                    <li><strong>Mode résumable :</strong> > 50 KB (chunks de 512 bytes via JSONP avec reprise automatique)</li>
+                    <li><strong>Mode simple :</strong> Désactivé (JSONP inadapté aux données binaires)</li>
+                    <li><strong>Mode résumable :</strong> Tous fichiers (chunks de 512 bytes via JSONP avec reprise automatique)</li>
                 </ul>
                 <p><strong>Bonnes pratiques :</strong> Compressez en ZIP si possible, évitez > 500 MB pour un meilleur confort.</p>
                 
@@ -304,7 +304,7 @@
         // ========================================
         const CONFIG = {
             APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzj5eIZHLtkVZEvGLNIP6MV7ncah-R7Jb7myK2iiWX2tbXzE3uB6Vi2vEBpQ2YFl9AL/exec',
-            SIMPLE_THRESHOLD: 50 * 1024, // 50 KB - Maximum sécurisé pour JSONP URLs
+            SIMPLE_THRESHOLD: 0, // Désactivé - tous fichiers en mode résumable
             CHUNK_SIZE: 512, // 512 bytes chunks pour JSONP ultra-courtes
             SECRET: 'yukibuy_upload_2024',
             ALLOWED_TYPES: ['.csv', '.xlsx', '.xls', '.zip', '.pdf'],
