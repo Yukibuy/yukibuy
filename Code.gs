@@ -418,7 +418,7 @@ function initResumable_(filename, mimeType, fileSize) {
       success: true,
       uploadId: uploadId,
       message: 'Session d\'upload initialisée',
-      chunkSize: 1 * 1024 * 1024 // 1MB pour JSONP (compatibilité URL)
+      chunkSize: 2 * 1024 // 2KB pour JSONP URLs courtes
     };
     
   } catch (driveError) {
