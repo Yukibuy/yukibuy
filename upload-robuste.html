@@ -594,14 +594,18 @@
         async function uploadResumable(file) {
             console.log(`☁️ Upload résumable: ${file.name} (${formatBytes(file.size)})`);
 
-            // 1. Initialiser la session avec JSONP
-            const initResult = await jsonpRequest({
-                mode: 'init',
-                filename: file.name,
-                mimeType: file.type,
-                fileSize: file.size.toString(),
-                secret: CONFIG.SECRET
-            });
+            // 1. Initialiser la session avec POST
+            const initResult = await fetch(CONFIG.APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({
+                    mode: 'init',
+                    filename: file.name,
+                    mimeType: file.type,
+                    fileSize: file.size.toString(),
+                    secret: CONFIG.SECRET
+                })
+            }).then(r => r.json());
 
             if (!initResult.success) {
                 throw new Error(initResult.message || 'Échec initialisation');
@@ -629,16 +633,20 @@
                 // Lire le chunk
                 const chunkResult = await readChunk(chunk);
                 
-                // Envoyer le chunk via JSONP (seul moyen sans CORS)
-                const chunkResultJson = await jsonpRequest({
-                    mode: 'chunk',
-                    uploadId: uploadId,
-                    start: start,
-                    end: end,
-                    total: file.size,
-                    secret: CONFIG.SECRET,
-                    chunkData: JSON.stringify(chunkResult)
-                });
+                // Envoyer le chunk via POST
+                const chunkResultJson = await fetch(CONFIG.APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        mode: 'chunk',
+                        uploadId: uploadId,
+                        start: start,
+                        end: end,
+                        total: file.size,
+                        secret: CONFIG.SECRET,
+                        chunkData: chunkResult
+                    })
+                }).then(r => r.json());
 
                 if (!chunkResultJson.success) {
                     throw new Error(chunkResultJson.message || 'Erreur chunk');

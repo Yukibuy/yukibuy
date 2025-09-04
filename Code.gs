@@ -61,14 +61,24 @@ function doGet(e) {
 function doOptions(e) {
   console.log('🔧 doOptions called - CORS preflight');
   return ContentService.createTextOutput(JSON.stringify({ message: 'CORS preflight OK' }))
-    .setMimeType(ContentService.MimeType.JSON);
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    });
 }
 
 // Fonction pour requêtes POST (upload)
 function doPost(e) {
   const result = handleRequest(e);
   return ContentService.createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeaders({
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    });
 }
 
 // Fonction commune pour traiter les requêtes (POST et JSONP)
@@ -80,13 +90,14 @@ function handleRequest(e) {
     console.log('Event object exists:', !!e);
     console.log('Parameters:', e ? e.parameter : 'NO PARAMETERS');
     console.log('Query string:', e ? e.queryString : 'NO QUERY');
+    console.log('Post data:', e ? e.postData : 'NO POST DATA');
     
     // Vérifier que e existe
     if (!e) {
       throw new Error('Event object manquant');
     }
     
-    // Les paramètres peuvent être dans e.parameter OU dans e.queryString
+    // Les paramètres peuvent être dans e.parameter, e.queryString, ou POST JSON
     let params = e.parameter || {};
     
     // Si pas de paramètres, essayer de parser la query string
@@ -95,6 +106,17 @@ function handleRequest(e) {
       const queryParams = new URLSearchParams(e.queryString);
       for (const [key, value] of queryParams.entries()) {
         params[key] = value;
+      }
+    }
+    
+    // Si encore pas de paramètres, essayer de parser le JSON POST
+    if (Object.keys(params).length === 0 && e.postData && e.postData.contents) {
+      console.log('Parsing JSON POST data');
+      try {
+        const postData = JSON.parse(e.postData.contents);
+        params = postData;
+      } catch (error) {
+        console.log('Failed to parse JSON POST, trying as form data');
       }
     }
     
@@ -145,7 +167,7 @@ function handleRequest(e) {
           parseInt(params.start),
           parseInt(params.end),
           parseInt(params.total),
-          e.postData ? e.postData.contents : params.chunkData
+          params.chunkData
         );
         break;
         
