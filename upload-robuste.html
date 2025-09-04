@@ -625,23 +625,16 @@
                 // Lire le chunk
                 const chunkResult = await readChunk(chunk);
                 
-                // Envoyer le chunk via POST
-                const chunkParams = new URLSearchParams({
+                // Envoyer le chunk via JSONP (contournement CORS)
+                const chunkResultJson = await jsonpRequest({
                     mode: 'chunk',
                     uploadId: uploadId,
                     start: start,
                     end: end,
                     total: file.size,
-                    secret: CONFIG.SECRET
+                    secret: CONFIG.SECRET,
+                    chunkData: JSON.stringify(chunkResult)
                 });
-
-                const chunkResponse = await fetch(CONFIG.APPS_SCRIPT_URL + '?' + chunkParams.toString(), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(chunkResult)
-                });
-
-                const chunkResultJson = await chunkResponse.json();
 
                 if (!chunkResultJson.success) {
                     throw new Error(chunkResultJson.message || 'Erreur chunk');

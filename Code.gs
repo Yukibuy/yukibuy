@@ -418,7 +418,7 @@ function initResumable_(filename, mimeType, fileSize) {
       success: true,
       uploadId: uploadId,
       message: 'Session d\'upload initialisée',
-      chunkSize: 8 * 1024 * 1024 // 8MB recommandé
+      chunkSize: 1 * 1024 * 1024 // 1MB pour JSONP (compatibilité URL)
     };
     
   } catch (driveError) {
@@ -453,7 +453,14 @@ function putChunk_(uploadId, start, end, total, bytesArrayJson) {
   }
   
   // Recomposer le chunk depuis le JSON
-  const bytesArray = JSON.parse(bytesArrayJson);
+  let bytesArray;
+  if (typeof bytesArrayJson === 'string') {
+    // Données JSONP ou POST string - parser le JSON
+    bytesArray = JSON.parse(bytesArrayJson);
+  } else {
+    // Données déjà parsées
+    bytesArray = bytesArrayJson;
+  }
   const chunkBlob = Utilities.newBlob(bytesArray, 'application/octet-stream');
   
   // Envoyer le chunk à Drive
