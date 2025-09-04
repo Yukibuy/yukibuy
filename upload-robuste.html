@@ -303,12 +303,12 @@
         // 🔧 CONFIGURATION - À PERSONNALISER
         // ========================================
         const CONFIG = {
-            APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzj5eIZHLtkVZEvGLNIP6MV7ncah-R7Jb7myK2iiWX2tbXzE3uB6Vi2vEBpQ2YFl9AL/exec', // Ex: https://script.google.com/.../exec
-            SIMPLE_THRESHOLD: 40 * 1024 * 1024, // 40 MB
-            CHUNK_SIZE: 8 * 1024 * 1024, // 8 MB
-            SECRET: 'yukibuy_upload_2024', // Doit correspondre à SCRIPT_SECRET côté Apps Script
+            APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzj5eIZHLtkVZEvGLNIP6MV7ncah-R7Jb7myK2iiWX2tbXzE3uB6Vi2vEBpQ2YFl9AL/exec',
+            SIMPLE_THRESHOLD: 200 * 1024 * 1024, // 200 MB - Mode simple pour tous via JSONP
+            CHUNK_SIZE: 1 * 1024 * 1024, // 1 MB chunks pour JSONP (URLs plus courtes)
+            SECRET: 'yukibuy_upload_2024',
             ALLOWED_TYPES: ['.csv', '.xlsx', '.xls', '.zip', '.pdf'],
-            MAX_FILE_SIZE: 1024 * 1024 * 1024 // 1 GB (avertissement)
+            MAX_FILE_SIZE: 1024 * 1024 * 1024 // 1 GB
         };
 
         // ========================================
@@ -524,10 +524,23 @@
         }
 
         // ========================================
-        // UPLOAD SIMPLE (≤ 40MB)
+        // UPLOAD SIMPLE VIA JSONP (TOUS FICHIERS)
         // ========================================
         async function uploadSimple(file) {
-            console.log(`📤 Upload simple: ${file.name}`);
+            console.log(`📤 Upload simple JSONP: ${file.name} (${formatBytes(file.size)})`);
+
+            // Pour éviter les URLs trop longues, on limite à 10MB max par appel JSONP
+            const maxJsonpSize = 10 * 1024 * 1024; // 10MB
+            
+            if (file.size > maxJsonpSize) {
+                // Afficher instructions pour gros fichiers
+                showStatus(`📁 Fichier volumineux détecté (${formatBytes(file.size)}).\n\n💡 Pour les fichiers >10MB, envoyez-les par email à contact@yukibuy.com avec comme objet "Audit ROI - Vos données" et nous traiterons votre demande sous 24h.\n\nOu utilisez WeTransfer/Google Drive et envoyez-nous le lien.`, 'info');
+                return Promise.resolve({
+                    success: true,
+                    message: 'Instructions envoyées pour fichier volumineux',
+                    action: 'contact_direct'
+                });
+            }
 
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -537,6 +550,8 @@
                         const arrayBuffer = e.target.result;
                         const bytesArray = Array.from(new Uint8Array(arrayBuffer));
 
+                        console.log(`📦 Préparation JSONP: ${bytesArray.length} bytes`);
+                        
                         // Envoyer via JSONP (mode simple)
                         const result = await jsonpRequest({
                             mode: 'simple',
@@ -547,10 +562,10 @@
                         });
 
                         if (result.success) {
-                            console.log(`✅ Upload simple réussi: ${file.name}`);
+                            console.log(`✅ Upload JSONP réussi: ${file.name}`);
                             resolve(result);
                         } else {
-                            throw new Error(result.message || 'Upload simple échoué');
+                            throw new Error(result.message || 'Upload JSONP échoué');
                         }
 
                     } catch (error) {
