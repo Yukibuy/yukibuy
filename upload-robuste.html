@@ -491,13 +491,9 @@
                         console.log(`🔍 File size check: ${file.name} = ${formatBytes(file.size)}`);
                         console.log(`🔍 SIMPLE_THRESHOLD: ${formatBytes(CONFIG.SIMPLE_THRESHOLD)}`);
                         
-                        if (file.size <= CONFIG.SIMPLE_THRESHOLD) {
-                            console.log(`➡️ Using uploadSimple for ${file.name}`);
-                            await uploadSimple(file);
-                        } else {
-                            console.log(`➡️ Using uploadResumable for ${file.name}`);
-                            await uploadResumable(file);
-                        }
+                        // Mode simple désactivé - tous fichiers en mode résumable
+                        console.log(`➡️ Using uploadResumable for ${file.name} (${formatBytes(file.size)})`);
+                        await uploadResumable(file);
                         completedFiles++;
                     } catch (error) {
                         console.error(`Erreur upload ${file.name}:`, error);
