@@ -529,12 +529,12 @@
         async function uploadSimple(file) {
             console.log(`📤 Upload simple JSONP: ${file.name} (${formatBytes(file.size)})`);
 
-            // Pour éviter les URLs trop longues, on limite à 10MB max par appel JSONP
-            const maxJsonpSize = 10 * 1024 * 1024; // 10MB
+            // Pour éviter les URLs trop longues, on limite à 1MB max par appel JSONP
+            const maxJsonpSize = 1 * 1024 * 1024; // 1MB (limite sécurisée pour JSONP)
             
             if (file.size > maxJsonpSize) {
                 // Afficher instructions pour gros fichiers
-                showStatus(`📁 Fichier volumineux détecté (${formatBytes(file.size)}).\n\n💡 Pour les fichiers >10MB, envoyez-les par email à contact@yukibuy.com avec comme objet "Audit ROI - Vos données" et nous traiterons votre demande sous 24h.\n\nOu utilisez WeTransfer/Google Drive et envoyez-nous le lien.`, 'info');
+                showStatus(`📁 Fichier volumineux détecté (${formatBytes(file.size)}).\n\n💡 Pour les fichiers >1MB, envoyez-les par email à contact@yukibuy.com avec comme objet "Audit ROI - Vos données" et nous traiterons votre demande sous 24h.\n\nOu utilisez WeTransfer/Google Drive et envoyez-nous le lien.`, 'info');
                 return Promise.resolve({
                     success: true,
                     message: 'Instructions envoyées pour fichier volumineux',
@@ -551,6 +551,14 @@
                         const bytesArray = Array.from(new Uint8Array(arrayBuffer));
 
                         console.log(`📦 Préparation JSONP: ${bytesArray.length} bytes`);
+                        
+                        // Vérification taille JSON (approximation)
+                        const jsonSize = JSON.stringify(bytesArray).length;
+                        console.log(`📏 Taille JSON estimée: ${formatBytes(jsonSize)}`);
+                        
+                        if (jsonSize > 2000000) { // 2MB en JSON ≈ limite URL sécurisée
+                            throw new Error(`Données trop volumineuses pour JSONP (${formatBytes(jsonSize)} JSON). Utilisez la méthode de contact direct.`);
+                        }
                         
                         // Envoyer via JSONP (mode simple)
                         const result = await jsonpRequest({
