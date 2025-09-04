@@ -306,7 +306,7 @@
         const CONFIG = {
             APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzj5eIZHLtkVZEvGLNIP6MV7ncah-R7Jb7myK2iiWX2tbXzE3uB6Vi2vEBpQ2YFl9AL/exec',
             SIMPLE_THRESHOLD: 0, // Désactivé - tous fichiers en mode résumable
-            CHUNK_SIZE: 64 * 1024, // 64 KB - compromis entre performance et taille URL JSONP
+            CHUNK_SIZE: 8 * 1024, // 8 KB - taille maximale pour JSONP (URL ~40KB max)
             SECRET: 'yukibuy_upload_2024',
             ALLOWED_TYPES: ['.csv', '.xlsx', '.xls', '.zip', '.pdf'],
             MAX_FILE_SIZE: 1024 * 1024 * 1024 // 1 GB
@@ -554,9 +554,9 @@
                         const jsonSize = JSON.stringify(bytesArray).length;
                         console.log(`📏 Taille JSON estimée: ${formatBytes(jsonSize)}`);
                         
-                        // Limite URL stricte pour éviter ERR_CONNECTION_RESET
-                        const maxUrlLength = 200000; // 200KB - limite réaliste pour URLs longues
-                        const baseUrlLength = CONFIG.APPS_SCRIPT_URL.length + 200; // URL + params
+                        // Limite URL très stricte pour JSONP - Chrome limite à ~2MB mais en pratique beaucoup moins
+                        const maxUrlLength = 40000; // 40KB - limite conservative pour éviter ERR_CONNECTION_RESET
+                        const baseUrlLength = CONFIG.APPS_SCRIPT_URL.length + 500; // URL + params + marge
                         const maxDataSize = maxUrlLength - baseUrlLength;
                         
                         if (jsonSize > maxDataSize) {
