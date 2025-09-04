@@ -644,6 +644,13 @@
                 // Mettre à jour la progression
                 const progress = Math.round((end / file.size) * 100);
                 progressFill.style.width = `${progress}%`;
+                
+                // Afficher informations de buffering
+                if (chunkResultJson.buffering) {
+                    chunkProgress.textContent = `${chunkResultJson.message || `Buffer: ${chunkResultJson.bufferSize} bytes`}`;
+                } else if (chunkResultJson.driveProgress) {
+                    chunkProgress.textContent = `Drive: ${chunkResultJson.driveProgress}% | Client: ${progress}%`;
+                }
 
                 if (chunkResultJson.completed) {
                     console.log(`✅ Upload résumable terminé: ${file.name}`);
@@ -651,7 +658,7 @@
                     return chunkResultJson;
                 }
 
-                start = chunkResultJson.nextStart;
+                start = chunkResultJson.nextStart || end;
                 await sleep(100); // Petite pause entre chunks
             }
 

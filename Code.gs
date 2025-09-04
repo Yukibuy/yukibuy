@@ -475,76 +475,119 @@ function putChunk_(uploadId, start, end, total, bytesArrayJson) {
   }
   
   // Recomposer le chunk depuis les données
-  let chunkBlob;
+  let chunkBytes;
   if (typeof bytesArrayJson === 'string') {
     // Données JSONP - parser le JSON pour obtenir l'array
     const bytesArray = JSON.parse(bytesArrayJson);
-    chunkBlob = Utilities.newBlob(bytesArray, 'application/octet-stream');
+    chunkBytes = bytesArray;
   } else if (bytesArrayJson && bytesArrayJson.getBytes) {
     // Données FormData - déjà un blob
-    chunkBlob = bytesArrayJson;
+    chunkBytes = Array.from(bytesArrayJson.getBytes());
   } else {
     // Données array directes
-    chunkBlob = Utilities.newBlob(bytesArrayJson, 'application/octet-stream');
+    chunkBytes = bytesArrayJson;
   }
   
-  // Envoyer le chunk à Drive
-  const contentRange = `bytes ${start}-${end - 1}/${total}`;
-  const token = getOAuth_();
+  // NOUVEAU: Système de buffer pour respecter minimum 256KB Google Drive
+  const DRIVE_MIN_CHUNK = 256 * 1024; // 256 KB minimum requis par Google Drive
   
-  const response = UrlFetchApp.fetch(sessionData.sessionUri, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Range': contentRange,
-      'Content-Type': sessionData.mimeType
-    },
-    payload: chunkBlob.getBytes()
-  });
+  // Initialiser buffer si nécessaire
+  if (!sessionData.buffer) {
+    sessionData.buffer = [];
+    sessionData.bufferStart = sessionData.uploadedBytes;
+  }
   
-  const responseCode = response.getResponseCode();
-  console.log(`📡 Drive response: ${responseCode}`);
+  // Ajouter les bytes au buffer
+  sessionData.buffer = sessionData.buffer.concat(chunkBytes);
+  sessionData.receivedBytes = end; // Marquer comme reçu côté client
   
-  if (responseCode === 308) {
-    // Chunk accepté, continuer
-    sessionData.uploadedBytes = end;
+  console.log(`📦 Buffer: ${sessionData.buffer.length} bytes accumulés`);
+  
+  const isLastChunk = (end >= total);
+  const bufferReady = (sessionData.buffer.length >= DRIVE_MIN_CHUNK || isLastChunk);
+  
+  if (bufferReady && sessionData.buffer.length > 0) {
+    console.log(`📤 Envoi buffer à Drive: ${sessionData.buffer.length} bytes`);
+    
+    // Créer le blob depuis le buffer
+    const bufferBlob = Utilities.newBlob(sessionData.buffer, 'application/octet-stream');
+    const bufferEnd = sessionData.bufferStart + sessionData.buffer.length;
+    const contentRange = `bytes ${sessionData.bufferStart}-${bufferEnd - 1}/${total}`;
+    
+    // Envoyer le buffer à Drive
+    const token = getOAuth_();
+    const response = UrlFetchApp.fetch(sessionData.sessionUri, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Range': contentRange,
+        'Content-Type': sessionData.mimeType
+      },
+      payload: bufferBlob.getBytes()
+    });
+    
+    const responseCode = response.getResponseCode();
+    console.log(`📡 Drive response: ${responseCode}`);
+    
+    if (responseCode === 308) {
+      // Chunk accepté par Drive, vider le buffer
+      sessionData.uploadedBytes = bufferEnd;
+      sessionData.buffer = [];
+      sessionData.bufferStart = bufferEnd;
+      properties.setProperty(STATE_PREFIX + uploadId, JSON.stringify(sessionData));
+      
+      return {
+        success: true,
+        nextStart: sessionData.receivedBytes, // Continuer depuis où le client s'est arrêté
+        bytesReceived: sessionData.receivedBytes,
+        totalBytes: total,
+        progress: Math.round((sessionData.receivedBytes / total) * 100),
+        driveProgress: Math.round((sessionData.uploadedBytes / total) * 100)
+      };
+      
+    } else if (responseCode === 200 || responseCode === 201) {
+      // Upload terminé !
+      const fileInfo = JSON.parse(response.getContentText());
+      
+      // Nettoyer la session
+      properties.deleteProperty(STATE_PREFIX + uploadId);
+      
+      console.log(`✅ Upload terminé: ${fileInfo.id}`);
+      
+      // Construire URL lisible
+      const fileUrl = `https://drive.google.com/file/d/${fileInfo.id}/view`;
+      
+      // Envoyer email de notification
+      sendNotificationEmail_(sessionData.filename, fileUrl, total);
+      
+      return {
+        success: true,
+        completed: true,
+        id: fileInfo.id,
+        name: sessionData.filename,
+        url: fileUrl,
+        size: total,
+        message: 'Upload terminé avec succès'
+      };
+      
+    } else {
+      throw new Error(`Erreur Drive upload: ${responseCode} - ${response.getContentText()}`);
+    }
+    
+  } else {
+    // Buffer pas encore prêt, continuer à accumuler
     properties.setProperty(STATE_PREFIX + uploadId, JSON.stringify(sessionData));
     
     return {
       success: true,
-      nextStart: end,
-      bytesReceived: end,
+      nextStart: sessionData.receivedBytes,
+      bytesReceived: sessionData.receivedBytes,
       totalBytes: total,
-      progress: Math.round((end / total) * 100)
+      progress: Math.round((sessionData.receivedBytes / total) * 100),
+      buffering: true,
+      bufferSize: sessionData.buffer.length,
+      message: `Buffer: ${sessionData.buffer.length}/${DRIVE_MIN_CHUNK} bytes`
     };
-    
-  } else if (responseCode === 200 || responseCode === 201) {
-    // Upload terminé !
-    const fileInfo = JSON.parse(response.getContentText());
-    
-    // Nettoyer la session
-    properties.deleteProperty(STATE_PREFIX + uploadId);
-    
-    console.log(`✅ Upload terminé: ${fileInfo.id}`);
-    
-    // Construire URL lisible
-    const fileUrl = `https://drive.google.com/file/d/${fileInfo.id}/view`;
-    
-    // Envoyer email de notification
-    sendNotificationEmail_(sessionData.filename, fileUrl, total);
-    
-    return {
-      success: true,
-      completed: true,
-      id: fileInfo.id,
-      name: sessionData.filename,
-      url: fileUrl,
-      size: total,
-      message: 'Upload terminé avec succès'
-    };
-    
-  } else {
-    throw new Error(`Erreur Drive upload: ${responseCode} - ${response.getContentText()}`);
   }
 }
 
