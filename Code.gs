@@ -427,6 +427,7 @@ function initResumable_(filename, mimeType, fileSize) {
       mimeType: mimeType,
       fileSize: fileSize,
       uploadedBytes: 0,
+      receivedBytes: 0,
       created: Date.now()
     };
     
@@ -470,8 +471,10 @@ function putChunk_(uploadId, start, end, total, bytesArrayJson) {
     throw new Error(`Taille incohérente: session=${sessionData.fileSize}, chunk=${total}`);
   }
   
-  if (start !== sessionData.uploadedBytes) {
-    throw new Error(`Offset incohérent: attendu=${sessionData.uploadedBytes}, reçu=${start}`);
+  // Vérifier offset avec le système de buffer
+  const expectedStart = sessionData.receivedBytes || sessionData.uploadedBytes || 0;
+  if (start !== expectedStart) {
+    throw new Error(`Offset incohérent: attendu=${expectedStart}, reçu=${start}`);
   }
   
   // Recomposer le chunk depuis les données
