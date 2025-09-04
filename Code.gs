@@ -145,7 +145,7 @@ function handleRequest(e) {
           parseInt(params.start),
           parseInt(params.end),
           parseInt(params.total),
-          e.postData ? e.postData.contents : params.chunkData
+          e.postData ? e.postData.getBlob() : params.chunkData
         );
         break;
         
@@ -418,7 +418,7 @@ function initResumable_(filename, mimeType, fileSize) {
       success: true,
       uploadId: uploadId,
       message: 'Session d\'upload initialisée',
-      chunkSize: 512 // 512 bytes pour JSONP URLs ultra-courtes
+      chunkSize: 256 * 1024 // 256 KB - minimum requis par Google Drive API
     };
     
   } catch (driveError) {

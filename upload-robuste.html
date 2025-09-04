@@ -282,7 +282,7 @@
                     <li><strong>Quota Google Drive :</strong> 750 GB/jour par utilisateur</li>
                     <li><strong>Taille par fichier :</strong> Support théorique > 1 GB (Drive), limité par browser RAM</li>
                     <li><strong>Mode simple :</strong> Désactivé (JSONP inadapté aux données binaires)</li>
-                    <li><strong>Mode résumable :</strong> Tous fichiers (chunks de 512 bytes via JSONP avec reprise automatique)</li>
+                    <li><strong>Mode résumable :</strong> Tous fichiers (chunks de 256 KB via POST avec reprise automatique)</li>
                 </ul>
                 <p><strong>Bonnes pratiques :</strong> Compressez en ZIP si possible, évitez > 500 MB pour un meilleur confort.</p>
                 
@@ -305,7 +305,7 @@
         const CONFIG = {
             APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzj5eIZHLtkVZEvGLNIP6MV7ncah-R7Jb7myK2iiWX2tbXzE3uB6Vi2vEBpQ2YFl9AL/exec',
             SIMPLE_THRESHOLD: 0, // Désactivé - tous fichiers en mode résumable
-            CHUNK_SIZE: 512, // 512 bytes chunks pour JSONP ultra-courtes
+            CHUNK_SIZE: 256 * 1024, // 256 KB - minimum requis par Google Drive API
             SECRET: 'yukibuy_upload_2024',
             ALLOWED_TYPES: ['.csv', '.xlsx', '.xls', '.zip', '.pdf'],
             MAX_FILE_SIZE: 1024 * 1024 * 1024 // 1 GB
@@ -625,16 +625,15 @@
                 // Lire le chunk
                 const chunkResult = await readChunk(chunk);
                 
-                // Envoyer le chunk via JSONP (contournement CORS)
-                const chunkResultJson = await jsonpRequest({
+                // Envoyer le chunk via POST (chunks volumineux)
+                const chunkResultJson = await postChunk({
                     mode: 'chunk',
                     uploadId: uploadId,
                     start: start,
                     end: end,
                     total: file.size,
-                    secret: CONFIG.SECRET,
-                    chunkData: JSON.stringify(chunkResult)
-                });
+                    secret: CONFIG.SECRET
+                }, chunkResult);
 
                 if (!chunkResultJson.success) {
                     throw new Error(chunkResultJson.message || 'Erreur chunk');
@@ -670,6 +669,33 @@
                 reader.onerror = () => reject(new Error('Erreur lecture chunk'));
                 reader.readAsArrayBuffer(chunk);
             });
+        }
+
+        // ========================================
+        // HELPER POST CHUNKS - POUR GROS CHUNKS
+        // ========================================
+        async function postChunk(params, chunkData) {
+            const formData = new FormData();
+            
+            // Ajouter les paramètres
+            Object.keys(params).forEach(key => {
+                formData.append(key, params[key]);
+            });
+            
+            // Ajouter les données chunk
+            const chunkBlob = new Blob([new Uint8Array(chunkData)], { type: 'application/octet-stream' });
+            formData.append('chunkData', chunkBlob);
+            
+            const response = await fetch(CONFIG.APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            return await response.json();
         }
 
         // ========================================
