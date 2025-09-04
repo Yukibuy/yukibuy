@@ -282,7 +282,7 @@
                     <li><strong>Quota Google Drive :</strong> 750 GB/jour par utilisateur</li>
                     <li><strong>Taille par fichier :</strong> Support théorique > 1 GB (Drive), limité par browser RAM</li>
                     <li><strong>Mode simple :</strong> ≤ 100 KB (upload direct via JSONP)</li>
-                    <li><strong>Mode résumable :</strong> > 100 KB (chunks de 2 KB via JSONP avec reprise automatique)</li>
+                    <li><strong>Mode résumable :</strong> > 100 KB (chunks de 512 bytes via JSONP avec reprise automatique)</li>
                 </ul>
                 <p><strong>Bonnes pratiques :</strong> Compressez en ZIP si possible, évitez > 500 MB pour un meilleur confort.</p>
                 
@@ -305,7 +305,7 @@
         const CONFIG = {
             APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzj5eIZHLtkVZEvGLNIP6MV7ncah-R7Jb7myK2iiWX2tbXzE3uB6Vi2vEBpQ2YFl9AL/exec',
             SIMPLE_THRESHOLD: 100 * 1024, // 100 KB - Maximum sécurisé pour JSONP URLs
-            CHUNK_SIZE: 2 * 1024, // 2 KB chunks pour JSONP URLs courtes
+            CHUNK_SIZE: 512, // 512 bytes chunks pour JSONP ultra-courtes
             SECRET: 'yukibuy_upload_2024',
             ALLOWED_TYPES: ['.csv', '.xlsx', '.xls', '.zip', '.pdf'],
             MAX_FILE_SIZE: 1024 * 1024 * 1024 // 1 GB
