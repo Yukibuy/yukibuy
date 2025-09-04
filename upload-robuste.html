@@ -304,7 +304,7 @@
         // 🔧 CONFIGURATION - À PERSONNALISER
         // ========================================
         const CONFIG = {
-            APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzj5eIZHLtkVZEvGLNIP6MV7ncah-R7Jb7myK2iiWX2tbXzE3uB6Vi2vEBpQ2YFl9AL/exec',
+            APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyipo5YLn9S9EDRLDaOOk3CFbzcwAzk7cQ4Ik56AuMt5cZ_fBXZv3VQlaLib_ANoQQh/exec',
             SIMPLE_THRESHOLD: 0, // Désactivé - tous fichiers en mode résumable
             CHUNK_SIZE: 1 * 1024, // 1 KB - taille ultra-réduite pour JSONP (JSON ~5KB max)
             SECRET: 'yukibuy_upload_2024',
@@ -781,6 +781,15 @@
                 }, 120000);
                 
                 console.log('📤 Sending JSONP request...');
+                console.log('🔗 Full URL:', finalUrl);
+                
+                // Vérifier que l'URL n'est pas trop longue pour le navigateur
+                if (finalUrl.length > 100000) {
+                    console.error('❌ URL vraiment trop longue:', finalUrl.length);
+                    reject(new Error(`URL trop longue: ${finalUrl.length} chars`));
+                    return;
+                }
+                
                 document.head.appendChild(script);
             });
         }
