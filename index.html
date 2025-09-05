@@ -2285,12 +2285,14 @@
                 uploadProgress.style.display = 'block';
                 uploadArea.classList.add('uploading');
 
-                // Vérifier s'il y a des fichiers trop gros
-                if (oversizedFiles.length > 0) {
-                    const oversizedList = oversizedFiles.map(f => `${f.name} (${(f.size/1024/1024).toFixed(1)}MB)`).join(', ');
-                    showUploadStatus(`❌ Fichiers trop volumineux : ${oversizedList}. Notre système gère les fichiers jusqu'à 4MB. Pour des fichiers plus gros, contactez-nous à contact@yukibuy.com.`, 'error');
-                    uploadProgress.style.display = 'none';
-                    uploadArea.classList.remove('uploading');
+                // Gérer fichiers mixtes (valides + trop gros)
+                if (oversizedFiles.length > 0 && validFiles.length > 0) {
+                    // Cas mixte - proposer des options
+                    await handleMixedFiles(validFiles, oversizedFiles, clientInfo, formData);
+                    return;
+                } else if (oversizedFiles.length > 0 && validFiles.length === 0) {
+                    // Tous les fichiers sont trop gros - proposer upload séquentiel
+                    await handleOversizedFiles(oversizedFiles, clientInfo);
                     return;
                 }
 
@@ -2476,6 +2478,268 @@
                 // Scroll to top
                 document.body.scrollTop = 0;
                 document.documentElement.scrollTop = 0;
+            }
+        }
+
+        // ========================================
+        // GESTION FICHIERS MIXTES - UX AMÉLIORÉE
+        // ========================================
+        
+        async function handleMixedFiles(validFiles, oversizedFiles, clientInfo, formData) {
+            // Stocker pour les actions utilisateur
+            currentValidFiles = validFiles;
+            currentOversizedFiles = oversizedFiles;
+            currentClientInfo = clientInfo;
+            currentFormData = formData;
+            
+            uploadProgress.style.display = 'none';
+            uploadArea.classList.remove('uploading');
+            
+            const validList = validFiles.map(f => `• ${f.name} (${(f.size/1024/1024).toFixed(1)}MB) ✅`).join('<br>');
+            const oversizedList = oversizedFiles.map(f => `• ${f.name} (${(f.size/1024/1024).toFixed(1)}MB) ❌`).join('<br>');
+            
+            const choiceMessage = `
+                <div style="text-align: left; margin: 20px 0;">
+                    <h4>📋 Analyse de vos fichiers :</h4>
+                    <p><strong>Fichiers compatibles (≤4MB) :</strong></p>
+                    ${validList}
+                    <br>
+                    <p><strong>Fichiers trop volumineux (>4MB) :</strong></p>
+                    ${oversizedList}
+                    <br>
+                    <p>🎯 <strong>Que souhaitez-vous faire ?</strong></p>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px;">
+                    <button onclick="uploadValidFilesOnly()" class="btn btn-primary" style="padding: 10px 20px; margin: 5px;">
+                        ✅ Envoyer les fichiers valides maintenant
+                    </button>
+                    <button onclick="uploadAllSequentially()" class="btn btn-secondary" style="padding: 10px 20px; margin: 5px;">
+                        🔄 Essayer tous les fichiers un par un
+                    </button>
+                    <button onclick="cancelAndRetry()" class="btn btn-secondary" style="padding: 10px 20px; margin: 5px;">
+                        ↩️ Annuler et réduire les gros fichiers
+                    </button>
+                </div>
+            `;
+            
+            showUploadStatus(choiceMessage, 'info');
+        }
+        
+        async function handleOversizedFiles(oversizedFiles, clientInfo) {
+            // Stocker pour les actions utilisateur
+            currentValidFiles = [];
+            currentOversizedFiles = oversizedFiles;
+            currentClientInfo = clientInfo;
+            currentFormData = null;
+            
+            uploadProgress.style.display = 'none';
+            uploadArea.classList.remove('uploading');
+            
+            const oversizedList = oversizedFiles.map(f => `• ${f.name} (${(f.size/1024/1024).toFixed(1)}MB)`).join('<br>');
+            
+            const choiceMessage = `
+                <div style="text-align: left; margin: 20px 0;">
+                    <h4>⚠️ Tous vos fichiers dépassent 4MB :</h4>
+                    ${oversizedList}
+                    <br>
+                    <p>🎯 <strong>Options disponibles :</strong></p>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px;">
+                    <button onclick="uploadAllSequentially()" class="btn btn-primary" style="padding: 10px 20px; margin: 5px;">
+                        🔄 Essayer un par un (peut fonctionner)
+                    </button>
+                    <button onclick="contactForLargeFiles()" class="btn btn-secondary" style="padding: 10px 20px; margin: 5px;">
+                        📧 Nous contacter pour gros fichiers
+                    </button>
+                    <button onclick="cancelAndRetry()" class="btn btn-secondary" style="padding: 10px 20px; margin: 5px;">
+                        ↩️ Annuler et réduire les fichiers
+                    </button>
+                </div>
+            `;
+            
+            showUploadStatus(choiceMessage, 'info');
+        }
+
+        // ========================================
+        // ACTIONS UTILISATEUR - CHOIX UX
+        // ========================================
+        
+        // Variables globales pour les actions
+        let currentValidFiles = [];
+        let currentOversizedFiles = [];
+        let currentClientInfo = {};
+        let currentFormData = null;
+        
+        window.uploadValidFilesOnly = async function() {
+            console.log('✅ User chose: upload valid files only');
+            showUploadStatus('📤 Envoi des fichiers compatibles en cours...', 'info');
+            
+            try {
+                await uploadFiles(currentValidFiles, currentClientInfo, currentFormData);
+            } catch (error) {
+                console.error('Error uploading valid files:', error);
+                showUploadStatus('❌ Erreur lors de l\'envoi des fichiers valides. Réessayez ou contactez-nous.', 'error');
+            }
+        };
+        
+        window.uploadAllSequentially = async function() {
+            console.log('🔄 User chose: upload all files sequentially');
+            showUploadStatus('🔄 Envoi séquentiel en cours... Cela peut prendre plus de temps.', 'info');
+            
+            const allFiles = [...currentValidFiles, ...currentOversizedFiles];
+            await uploadFilesSequentially(allFiles, currentClientInfo);
+        };
+        
+        window.contactForLargeFiles = function() {
+            console.log('📧 User chose: contact for large files');
+            const subject = encodeURIComponent('Demande upload fichiers volumineux');
+            const body = encodeURIComponent(`Bonjour,
+
+J'ai des fichiers de données publicitaires dépassant 4MB que je souhaite envoyer pour mon audit ROI.
+
+Fichiers concernés :
+${currentOversizedFiles.map(f => `- ${f.name} (${(f.size/1024/1024).toFixed(1)}MB)`).join('\n')}
+
+Pouvez-vous me proposer une solution ?
+
+Merci !`);
+            
+            window.open(`mailto:contact@yukibuy.com?subject=${subject}&body=${body}`);
+            showUploadStatus('📧 Email préparé ! Envoyez-nous votre demande et nous vous proposerons une solution pour vos gros fichiers.', 'info');
+        };
+        
+        window.cancelAndRetry = function() {
+            console.log('↩️ User chose: cancel and retry');
+            showUploadStatus('↩️ Sélectionnez de nouveaux fichiers (≤4MB chacun) ou réduisez la taille de vos fichiers existants.', 'info');
+            // Reset l'interface
+            uploadProgress.style.display = 'none';
+            uploadArea.classList.remove('uploading');
+        };
+        
+        // ========================================
+        // FONCTIONS D'UPLOAD RÉUTILISABLES
+        // ========================================
+        
+        async function uploadFiles(filesToUpload, clientInfo, formData) {
+            if (!formData) {
+                // Créer FormData si pas fourni
+                formData = new FormData();
+                formData.append('clientName', clientInfo.clientName);
+                formData.append('clientEmail', clientInfo.clientEmail);
+                formData.append('clientCompany', clientInfo.clientCompany);
+            }
+            
+            // Ajouter les fichiers au FormData
+            filesToUpload.forEach(file => {
+                formData.append('csvFiles', file);
+            });
+            
+            uploadProgress.style.display = 'block';
+            uploadArea.classList.add('uploading');
+            
+            try {
+                console.log(`📤 Uploading ${filesToUpload.length} files via Netlify Functions`);
+                
+                const netlifyResponse = await fetch('/.netlify/functions/upload-csv', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (netlifyResponse.ok) {
+                    const result = await netlifyResponse.json();
+                    showUploadStatus(`✅ Upload terminé ! ${filesToUpload.length} fichier(s) envoyé(s) avec succès. Nous analysons vos données et vous recontactons sous 48h.`, 'success');
+                    
+                    // Reset du formulaire
+                    uploadForm.reset();
+                    uploadedFiles.innerHTML = '';
+                    selectedFiles = [];
+                    
+                    console.log('✅ Netlify upload successful');
+                } else {
+                    throw new Error(`Netlify upload failed: ${netlifyResponse.status}`);
+                }
+            } finally {
+                uploadProgress.style.display = 'none';
+                uploadArea.classList.remove('uploading');
+            }
+        }
+        
+        // ========================================
+        // UPLOAD SÉQUENTIEL AVANCÉ
+        // ========================================
+        
+        async function uploadFilesSequentially(files, clientInfo) {
+            let successCount = 0;
+            let failureCount = 0;
+            const results = [];
+            
+            uploadProgress.style.display = 'block';
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const currentFile = i + 1;
+                const totalFiles = files.length;
+                
+                console.log(`📤 Sequential upload ${currentFile}/${totalFiles}: ${file.name}`);
+                showUploadStatus(`📤 Upload ${currentFile}/${totalFiles}: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB)...`, 'info');
+                
+                try {
+                    // Créer FormData pour ce fichier spécifiquement
+                    const fileFormData = new FormData();
+                    fileFormData.append('clientName', clientInfo.clientName);
+                    fileFormData.append('clientEmail', clientInfo.clientEmail);
+                    fileFormData.append('clientCompany', clientInfo.clientCompany);
+                    fileFormData.append('csvFiles', file);
+                    
+                    const response = await fetch('/.netlify/functions/upload-csv', {
+                        method: 'POST',
+                        body: fileFormData
+                    });
+                    
+                    if (response.ok) {
+                        successCount++;
+                        results.push(`✅ ${file.name} - Envoyé`);
+                        console.log(`✅ Sequential upload success: ${file.name}`);
+                    } else {
+                        failureCount++;
+                        results.push(`❌ ${file.name} - Échec (${response.status})`);
+                        console.log(`❌ Sequential upload failed: ${file.name} - ${response.status}`);
+                    }
+                    
+                } catch (error) {
+                    failureCount++;
+                    results.push(`❌ ${file.name} - Erreur: ${error.message}`);
+                    console.error(`❌ Sequential upload error: ${file.name}`, error);
+                }
+                
+                // Petite pause entre les uploads
+                if (i < files.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+            
+            // Résultat final
+            uploadProgress.style.display = 'none';
+            uploadArea.classList.remove('uploading');
+            
+            const finalMessage = `
+                📊 <strong>Résultat upload séquentiel :</strong><br>
+                ✅ Réussis : ${successCount}/${files.length}<br>
+                ❌ Échecs : ${failureCount}/${files.length}<br><br>
+                📋 <strong>Détail :</strong><br>
+                ${results.join('<br>')}<br><br>
+                ${successCount > 0 ? '🎉 Les fichiers envoyés avec succès sont en cours d\'analyse !' : ''}
+                ${failureCount > 0 ? '📧 Pour les échecs, contactez-nous à contact@yukibuy.com avec les détails.' : ''}
+            `;
+            
+            const statusType = failureCount === 0 ? 'success' : (successCount > 0 ? 'warning' : 'error');
+            showUploadStatus(finalMessage, statusType);
+            
+            // Reset le formulaire si tout a réussi
+            if (failureCount === 0) {
+                uploadForm.reset();
+                uploadedFiles.innerHTML = '';
+                selectedFiles = [];
             }
         }
 
