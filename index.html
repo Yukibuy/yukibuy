@@ -2586,9 +2586,20 @@
             // Message final
             if (successCount === files.length) {
                 showUploadStatus(`🎉 Succès ! Tous vos ${files.length} fichiers ont été envoyés un par un.\n\nNous analysons vos données et vous recontactons sous 48h.`, 'success');
-                uploadForm.reset();
-                uploadedFiles.innerHTML = '';
-                selectedFiles = [];
+                
+                // Reset sécurisé avec récupération directe des éléments
+                const uploadForm = document.getElementById('upload-form');
+                const uploadedFiles = document.getElementById('uploaded-files');
+                const fileInput = document.getElementById('csv-files');
+                
+                if (uploadForm) uploadForm.reset();
+                if (uploadedFiles) uploadedFiles.innerHTML = '';
+                if (fileInput) fileInput.value = '';
+                
+                // Reset de la variable globale selectedFiles si elle existe
+                if (typeof selectedFiles !== 'undefined') {
+                    selectedFiles.length = 0; // Vider le tableau sans redéclarer
+                }
             } else if (successCount > 0) {
                 showUploadStatus(`⚠️ Partiellement réussi : ${successCount}/${files.length} fichiers envoyés.\n\nContactez-nous à contact@yukibuy.com pour les fichiers restants.`, 'warning');
             } else {
