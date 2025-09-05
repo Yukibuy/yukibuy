@@ -2292,13 +2292,32 @@
                 uploadProgress.style.display = 'block';
                 uploadArea.classList.add('uploading');
 
+                // 🧠 LOGIQUE INTELLIGENTE : Vérifier taille totale
+                const totalSize = validFiles.reduce((sum, file) => sum + file.size, 0);
+                const maxBatchSize = 4 * 1024 * 1024; // 4MB total
+                
+                if (totalSize > maxBatchSize) {
+                    // Trop gros pour upload groupé, aller directement au séquentiel
+                    console.log(`📊 Taille totale ${(totalSize/1024/1024).toFixed(1)}MB > 4MB, upload séquentiel direct`);
+                    showUploadStatus(`📊 ${validFiles.length} fichiers (${(totalSize/1024/1024).toFixed(1)}MB total) - Envoi un par un...`, 'info');
+                    
+                    try {
+                        await uploadFilesOneByOne(validFiles, clientInfo);
+                        return; // Sortir de la fonction
+                    } catch (error) {
+                        showUploadStatus('❌ Envoi échoué. Contactez-nous à contact@yukibuy.com avec vos fichiers.', 'error');
+                        console.error('Sequential upload failed:', error);
+                        return;
+                    }
+                }
+
                 try {
                     let allUploadsSuccessful = true;
                     const uploadResults = [];
 
-                    // Upload moderne avec feedback en temps réel
+                    // Upload groupé pour taille raisonnable
                     if (validFiles.length > 0) {
-                        showUploadStatus(`📤 Envoi de ${validFiles.length} fichier(s)...`, 'info');
+                        showUploadStatus(`📤 Envoi groupé de ${validFiles.length} fichier(s)...`, 'info');
                         
                         validFiles.forEach(file => {
                             formData.append(`csvFiles`, file);
@@ -2330,8 +2349,17 @@
                     }
 
                 } catch (error) {
-                    showUploadStatus('❌ Erreur lors de l\'envoi. Veuillez réessayer ou nous contacter à contact@yukibuy.com', 'error');
-                    console.error('Upload error:', error);
+                    // 🚀 SOLUTION INTELLIGENTE : Essayer un par un automatiquement
+                    console.log('⚠️ Upload groupé échoué, tentative séquentielle automatique...');
+                    
+                    showUploadStatus('⚡ Upload groupé échoué, essai un par un automatiquement...', 'info');
+                    
+                    try {
+                        await uploadFilesOneByOne(validFiles, clientInfo);
+                    } catch (sequentialError) {
+                        showUploadStatus('❌ Tous les essais ont échoué. Contactez-nous à contact@yukibuy.com avec vos fichiers.', 'error');
+                        console.error('Sequential upload also failed:', sequentialError);
+                    }
                 } finally {
                     uploadProgress.style.display = 'none';
                     uploadArea.classList.remove('uploading');
@@ -2479,6 +2507,63 @@
         // ========================================
         // CODE MODERNE - SIMPLE ET EFFICACE
         // ========================================
+
+        async function uploadFilesOneByOne(files, clientInfo) {
+            let successCount = 0;
+            const results = [];
+            
+            showUploadStatus('🔄 Envoi un par un en cours...', 'info');
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const progress = `${i + 1}/${files.length}`;
+                
+                showUploadStatus(`📤 Envoi ${progress}: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB)`, 'info');
+                
+                try {
+                    const fileFormData = new FormData();
+                    fileFormData.append('clientName', clientInfo.clientName);
+                    fileFormData.append('clientEmail', clientInfo.clientEmail);
+                    fileFormData.append('clientCompany', clientInfo.clientCompany);
+                    fileFormData.append('clientPhone', document.getElementById('client-phone').value);
+                    fileFormData.append('monthlyBudget', document.getElementById('monthly-budget').value);
+                    fileFormData.append('additionalNotes', document.getElementById('additional-notes').value);
+                    fileFormData.append('csvFiles', file);
+                    
+                    const response = await fetch('/.netlify/functions/upload-csv', {
+                        method: 'POST',
+                        body: fileFormData
+                    });
+                    
+                    if (response.ok) {
+                        successCount++;
+                        results.push(`✅ ${file.name}`);
+                    } else {
+                        results.push(`❌ ${file.name} (erreur ${response.status})`);
+                    }
+                    
+                    // Pause courte entre uploads
+                    if (i < files.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                    
+                } catch (error) {
+                    results.push(`❌ ${file.name} (${error.message})`);
+                }
+            }
+            
+            // Message final
+            if (successCount === files.length) {
+                showUploadStatus(`🎉 Succès ! Tous vos ${files.length} fichiers ont été envoyés un par un.\n\nNous analysons vos données et vous recontactons sous 48h.`, 'success');
+                uploadForm.reset();
+                uploadedFiles.innerHTML = '';
+                selectedFiles = [];
+            } else if (successCount > 0) {
+                showUploadStatus(`⚠️ Partiellement réussi : ${successCount}/${files.length} fichiers envoyés.\n\nContactez-nous à contact@yukibuy.com pour les fichiers restants.`, 'warning');
+            } else {
+                throw new Error('Aucun fichier n\'a pu être envoyé');
+            }
+        }
 
         function hideRefundSection() {
             console.log('💰 Hiding refund policy section');
