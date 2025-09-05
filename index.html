@@ -2305,8 +2305,12 @@
                         await uploadFilesOneByOne(validFiles, clientInfo);
                         return; // Sortir de la fonction
                     } catch (error) {
-                        showUploadStatus('❌ Envoi échoué. Contactez-nous à contact@yukibuy.com avec vos fichiers.', 'error');
-                        console.error('Sequential upload failed:', error);
+                        console.error('❌ ERREUR DÉTAILLÉE Sequential upload:', error);
+                        console.error('❌ Stack trace:', error.stack);
+                        console.error('❌ Type d\'erreur:', typeof error);
+                        console.error('❌ Message:', error.message);
+                        
+                        showUploadStatus(`❌ Upload séquentiel échoué: ${error.message}\n\n🆘 Ouvrez la console (F12) et envoyez-nous une capture d'écran à contact@yukibuy.com`, 'error');
                         return;
                     }
                 }
@@ -2368,13 +2372,21 @@
 
             // Affichage des messages de statut
             function showUploadStatus(message, type) {
-                uploadStatus.textContent = message;
+                // Support HTML pour les messages de fallback
+                if (message.includes('<a href=')) {
+                    uploadStatus.innerHTML = message.replace(/\n/g, '<br>');
+                } else {
+                    uploadStatus.textContent = message;
+                }
                 uploadStatus.className = `upload-status ${type}`;
                 uploadStatus.style.display = 'block';
                 
-                setTimeout(() => {
-                    uploadStatus.style.display = 'none';
-                }, type === 'success' ? 10000 : 5000);
+                // Ne pas auto-masquer les solutions de fallback
+                if (!message.includes('📧 ENVOYER PAR EMAIL')) {
+                    setTimeout(() => {
+                        uploadStatus.style.display = 'none';
+                    }, type === 'success' ? 10000 : 5000);
+                }
             }
         }
 
@@ -2512,33 +2524,43 @@
             let successCount = 0;
             const results = [];
             
+            console.log('🔄 DEBUT upload séquentiel, fichiers:', files.length);
+            console.log('🔄 Client info:', clientInfo);
             showUploadStatus('🔄 Envoi un par un en cours...', 'info');
             
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const progress = `${i + 1}/${files.length}`;
                 
+                console.log(`📤 Début upload ${progress}: ${file.name} (${file.size} bytes)`);
                 showUploadStatus(`📤 Envoi ${progress}: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB)`, 'info');
                 
                 try {
                     const fileFormData = new FormData();
-                    fileFormData.append('clientName', clientInfo.clientName);
-                    fileFormData.append('clientEmail', clientInfo.clientEmail);
-                    fileFormData.append('clientCompany', clientInfo.clientCompany);
-                    fileFormData.append('clientPhone', document.getElementById('client-phone').value);
-                    fileFormData.append('monthlyBudget', document.getElementById('monthly-budget').value);
-                    fileFormData.append('additionalNotes', document.getElementById('additional-notes').value);
+                    fileFormData.append('clientName', clientInfo.clientName || '');
+                    fileFormData.append('clientEmail', clientInfo.clientEmail || '');
+                    fileFormData.append('clientCompany', clientInfo.clientCompany || '');
+                    fileFormData.append('clientPhone', document.getElementById('client-phone')?.value || '');
+                    fileFormData.append('monthlyBudget', document.getElementById('monthly-budget')?.value || '');
+                    fileFormData.append('additionalNotes', document.getElementById('additional-notes')?.value || '');
                     fileFormData.append('csvFiles', file);
+                    
+                    console.log(`📤 FormData créé pour ${file.name}, envoi en cours...`);
                     
                     const response = await fetch('/.netlify/functions/upload-csv', {
                         method: 'POST',
                         body: fileFormData
                     });
                     
+                    console.log(`📥 Réponse reçue pour ${file.name}:`, response.status, response.statusText);
+                    
                     if (response.ok) {
                         successCount++;
                         results.push(`✅ ${file.name}`);
+                        console.log(`✅ Succès pour ${file.name}`);
                     } else {
+                        const errorText = await response.text();
+                        console.error(`❌ Échec ${file.name}: ${response.status} - ${errorText}`);
                         results.push(`❌ ${file.name} (erreur ${response.status})`);
                     }
                     
@@ -2548,6 +2570,7 @@
                     }
                     
                 } catch (error) {
+                    console.error(`❌ Exception pour ${file.name}:`, error);
                     results.push(`❌ ${file.name} (${error.message})`);
                 }
             }
@@ -2561,7 +2584,27 @@
             } else if (successCount > 0) {
                 showUploadStatus(`⚠️ Partiellement réussi : ${successCount}/${files.length} fichiers envoyés.\n\nContactez-nous à contact@yukibuy.com pour les fichiers restants.`, 'warning');
             } else {
-                throw new Error('Aucun fichier n\'a pu être envoyé');
+                console.error('🚨 ÉCHEC TOTAL upload séquentiel');
+                // Fallback ultime : proposer l'envoi par email
+                const fileList = files.map(f => `- ${f.name} (${(f.size/1024/1024).toFixed(1)}MB)`).join('\\n');
+                const subject = encodeURIComponent('Fichiers audit ROI - Upload échoué');
+                const body = encodeURIComponent(`Bonjour,
+
+L'upload automatique a échoué pour mes fichiers. Pouvez-vous m'aider ?
+
+Fichiers concernés :
+${fileList}
+
+Informations client :
+- Nom : ${clientInfo.clientName}
+- Email : ${clientInfo.clientEmail}
+- Entreprise : ${clientInfo.clientCompany}
+
+Merci !`);
+                
+                showUploadStatus(`❌ Upload impossible par le site.\n\n📧 Solution alternative :\n\nCliquez ci-dessous pour nous envoyer vos fichiers par email :\n\n<a href="mailto:contact@yukibuy.com?subject=${subject}&body=${body}" style="background: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px 0;">📧 ENVOYER PAR EMAIL</a>\n\nOu utilisez WeTransfer vers contact@yukibuy.com`, 'warning');
+                
+                throw new Error('Aucun fichier n\'a pu être envoyé - Solution email proposée');
             }
         }
 
