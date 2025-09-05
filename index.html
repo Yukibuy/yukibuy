@@ -1854,7 +1854,7 @@
                         Glissez-déposez vos fichiers CSV ici ou utilisez le bouton ci-dessous
                     </div>
                     <div class="upload-subtext">
-                        Formats acceptés: .csv, .xlsx (Max: 750MB par fichier - Upload automatique intelligent)
+                        Formats acceptés: .csv, .xlsx (Max: 4MB par fichier - Optimisé pour PME)
                     </div>
                     
                     <!-- BOUTON VISIBLE POUR CHOISIR FICHIERS -->
@@ -1893,14 +1893,14 @@
                     <div style="background: #f0f9ff; padding: 1rem; border-radius: 6px; margin-top: 1rem; border-left: 4px solid var(--primary);">
                         <p style="color: var(--primary); font-weight: 500; margin: 0;">
                             🚀 <strong>Upload automatique intelligent :</strong><br>
-                            • Fichiers ≤100MB : Upload direct rapide<br>
-                            • Fichiers >100MB : Upload automatique Google Drive<br>
+                            • Fichiers ≤ 4MB : Upload direct fiable<br>
+                            • Fichiers > 4MB : Contactez-nous pour traitement manuel<br>
                             💡 Plus vous fournissez de données, plus l'audit sera précis !
                         </p>
                     </div>
                     <div style="background: #f0fdf4; padding: 1rem; border-radius: 6px; margin-top: 0.5rem; border-left: 4px solid #22c55e;">
                         <p style="color: #166534; font-weight: 500; margin: 0; font-size: 0.9rem;">
-                            ✅ <strong>Gros fichiers acceptés jusqu'à 750MB chacun !</strong> Upload 100% automatique.
+                            ✅ <strong>Fichiers jusqu'à 4MB parfaitement supportés !</strong> Upload 100% fiable pour PME.
                         </p>
                     </div>
                 </div>
@@ -2181,22 +2181,22 @@
             function validateFile(file) {
                 const allowedTypes = ['.csv', '.xlsx', '.xls'];
                 const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-                const maxSizeGoogleDrive = 750 * 1024 * 1024; // 750MB (limite Google Drive upload)
+                const maxSizeNetlify = 4 * 1024 * 1024; // 4MB (limite réelle testée)
 
                 if (!allowedTypes.includes(fileExtension)) {
                     showUploadStatus('Format non accepté. Utilisez .csv ou .xlsx', 'error');
                     return false;
                 }
 
-                if (file.size > maxSizeGoogleDrive) {
-                    showUploadStatus(`Fichier extrêmement volumineux (${(file.size/1024/1024).toFixed(1)}MB > 750MB). Contactez-nous à contact@yukibuy.com pour un traitement spécial.`, 'error');
+                if (file.size > maxSizeNetlify) {
+                    showUploadStatus(`Fichier trop volumineux (${(file.size/1024/1024).toFixed(1)}MB > 4MB). Notre système est optimisé pour les PME avec des fichiers ≤ 4MB. Pour des fichiers plus gros, contactez-nous à contact@yukibuy.com.`, 'error');
                     return false;
                 }
 
-                // Information pour gros fichiers (>100MB) - seront uploadés via Google Drive
+                // Validation taille fichier - limite 4MB
                 if (file.size > 100 * 1024 * 1024) {
-                    console.log(`☁️ Gros fichier détecté: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB) - Upload automatique Google Drive`);
-                    showUploadStatus(`Gros fichier détecté: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB). Upload automatique vers Google Drive activé !`, 'info');
+                    console.log(`❌ Fichier trop volumineux: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB > 4MB)`);
+                    showUploadStatus(`Fichier trop volumineux: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB). Limite 4MB pour PME. Contactez-nous pour fichiers plus gros.`, 'error');
                 }
 
                 return true;
@@ -2267,17 +2267,17 @@
                 }
 
                 // 🚀 LOGIQUE BIFURQUÉE - CRITIQUE POUR GROS FICHIERS
-                const smallFiles = []; // ≤100MB → Netlify Functions
-                const largeFiles = []; // >100MB → Google Drive direct
-                const maxNetlifySize = 100 * 1024 * 1024; // 100MB
+                const validFiles = []; // ≤4MB → Netlify Functions
+                const oversizedFiles = []; // >4MB → Erreur
+                const maxNetlifySize = 4 * 1024 * 1024; // 4MB
 
                 filesToUpload.forEach(file => {
                     if (file.size > maxNetlifySize) {
-                        largeFiles.push(file);
-                        console.log(`☁️ Large file for Google Drive: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB)`);
+                        oversizedFiles.push(file);
+                        console.log(`❌ File too large: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB > 4MB)`);
                     } else {
-                        smallFiles.push(file);
-                        console.log(`📎 Small file for Netlify: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB)`);
+                        validFiles.push(file);
+                        console.log(`✅ Valid file: ${file.name} (${(file.size/1024/1024).toFixed(1)}MB)`);
                     }
                 });
 
@@ -2285,15 +2285,24 @@
                 uploadProgress.style.display = 'block';
                 uploadArea.classList.add('uploading');
 
+                // Vérifier s'il y a des fichiers trop gros
+                if (oversizedFiles.length > 0) {
+                    const oversizedList = oversizedFiles.map(f => `${f.name} (${(f.size/1024/1024).toFixed(1)}MB)`).join(', ');
+                    showUploadStatus(`❌ Fichiers trop volumineux : ${oversizedList}. Notre système gère les fichiers jusqu'à 4MB. Pour des fichiers plus gros, contactez-nous à contact@yukibuy.com.`, 'error');
+                    uploadProgress.style.display = 'none';
+                    uploadArea.classList.remove('uploading');
+                    return;
+                }
+
                 try {
                     let allUploadsSuccessful = true;
                     const uploadResults = [];
 
-                    // 1️⃣ Upload petits fichiers via Netlify Functions
-                    if (smallFiles.length > 0) {
-                        console.log(`📤 Uploading ${smallFiles.length} small files via Netlify Functions`);
+                    // Upload des fichiers valides via Netlify Functions
+                    if (validFiles.length > 0) {
+                        console.log(`📤 Uploading ${validFiles.length} valid files via Netlify Functions`);
                         
-                        smallFiles.forEach(file => {
+                        validFiles.forEach(file => {
                             formData.append(`csvFiles`, file);
                         });
 
@@ -2304,27 +2313,10 @@
 
                         if (netlifyResponse.ok) {
                             const result = await netlifyResponse.json();
-                            uploadResults.push(`✅ ${smallFiles.length} fichier(s) standard(s) envoyé(s)`);
+                            uploadResults.push(`✅ ${validFiles.length} fichier(s) envoyé(s) avec succès`);
                             console.log('✅ Netlify upload successful');
                         } else {
                             throw new Error(`Netlify upload failed: ${netlifyResponse.status}`);
-                        }
-                    }
-
-                    // 2️⃣ Upload gros fichiers via Google Drive
-                    if (largeFiles.length > 0) {
-                        console.log(`☁️ Uploading ${largeFiles.length} large files via Google Drive`);
-                        
-                        for (const file of largeFiles) {
-                            try {
-                                const driveResult = await uploadToGoogleDrive(file, clientInfo);
-                                uploadResults.push(`☁️ ${file.name} uploadé sur Google Drive`);
-                                console.log(`✅ Google Drive upload successful for ${file.name}`);
-                            } catch (error) {
-                                console.error(`❌ Google Drive upload failed for ${file.name}:`, error);
-                                uploadResults.push(`❌ Erreur ${file.name}: ${error.message}`);
-                                allUploadsSuccessful = false;
-                            }
                         }
                     }
 
@@ -2495,56 +2487,7 @@
             }
         }
 
-        // SOLUTION AUTOMATIQUE - Upload direct vers Google Drive
-        // ⚠️ IMPORTANT: Remplacer par l'URL de votre Google Apps Script
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxALwvChhlsolfxH7mnUgdPay_mFV8ggN4Pk19GLUO5nJPs5LWT8yd9-knKKXs3EQef/exec';
-        
-        async function uploadToGoogleDrive(file, clientInfo) {
-            console.log(`☁️ Starting automatic Google Drive upload for ${file.name}`);
-            
-            return new Promise((resolve, reject) => {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('fileName', file.name);
-                formData.append('clientName', clientInfo.clientName);
-                formData.append('clientEmail', clientInfo.clientEmail);
-                formData.append('clientCompany', clientInfo.clientCompany);
-                
-                // Utiliser XMLHttpRequest pour un meilleur contrôle
-                const xhr = new XMLHttpRequest();
-                
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        try {
-                            const result = JSON.parse(xhr.responseText);
-                            if (result.success) {
-                                console.log(`✅ Google Drive upload completed for ${file.name}`);
-                                resolve(result);
-                            } else {
-                                reject(new Error(result.error || 'Erreur inconnue Google Drive'));
-                            }
-                        } catch (e) {
-                            reject(new Error('Erreur parsing réponse Google Drive'));
-                        }
-                    } else {
-                        reject(new Error(`Erreur HTTP Google Drive: ${xhr.status}`));
-                    }
-                };
-                
-                xhr.onerror = function() {
-                    reject(new Error('Erreur réseau Google Drive'));
-                };
-                
-                // Upload avec timeout
-                xhr.timeout = 300000; // 5 minutes pour gros fichiers
-                xhr.ontimeout = function() {
-                    reject(new Error('Timeout upload Google Drive (5 min)'));
-                };
-                
-                xhr.open('POST', GOOGLE_SCRIPT_URL, true);
-                xhr.send(formData);
-            });
-        }
+        // Logique simplifiée - seulement Netlify jusqu'à 4MB
 
         // Fonction pour afficher les instructions pour gros fichiers (fallback)
         function showLargeFileInstructions() {
