@@ -2370,24 +2370,7 @@
                 }
             });
 
-            // Affichage des messages de statut
-            function showUploadStatus(message, type) {
-                // Support HTML pour les messages de fallback
-                if (message.includes('<a href=')) {
-                    uploadStatus.innerHTML = message.replace(/\n/g, '<br>');
-                } else {
-                    uploadStatus.textContent = message;
-                }
-                uploadStatus.className = `upload-status ${type}`;
-                uploadStatus.style.display = 'block';
-                
-                // Ne pas auto-masquer les solutions de fallback
-                if (!message.includes('📧 ENVOYER PAR EMAIL')) {
-                    setTimeout(() => {
-                        uploadStatus.style.display = 'none';
-                    }, type === 'success' ? 10000 : 5000);
-                }
-            }
+            // Fonction showUploadStatus maintenant globale ↑
         }
 
         // Upload section initialisée dans la gestion de la page de succès
@@ -2519,6 +2502,31 @@
         // ========================================
         // CODE MODERNE - SIMPLE ET EFFICACE
         // ========================================
+
+        // Fonction globale pour afficher les statuts
+        function showUploadStatus(message, type) {
+            const uploadStatus = document.getElementById('upload-status');
+            if (!uploadStatus) {
+                console.error('❌ Element upload-status non trouvé');
+                return;
+            }
+            
+            // Support HTML pour les messages de fallback
+            if (message.includes('<a href=')) {
+                uploadStatus.innerHTML = message.replace(/\n/g, '<br>');
+            } else {
+                uploadStatus.textContent = message;
+            }
+            uploadStatus.className = `upload-status ${type}`;
+            uploadStatus.style.display = 'block';
+            
+            // Ne pas auto-masquer les solutions de fallback
+            if (!message.includes('📧 ENVOYER PAR EMAIL')) {
+                setTimeout(() => {
+                    uploadStatus.style.display = 'none';
+                }, type === 'success' ? 10000 : 5000);
+            }
+        }
 
         async function uploadFilesOneByOne(files, clientInfo) {
             let successCount = 0;
