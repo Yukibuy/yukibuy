@@ -1964,7 +1964,7 @@
             }
         }
 
-        // FONCTION STRIPE SIMPLIFIÉE
+        // FONCTION STRIPE - PRODUCTION AVEC PAYMENT LINK
         function testStripeButton() {
             console.log('🔥 BOUTON PRINCIPAL CLIQUÉ !');
 
@@ -1974,26 +1974,15 @@
                 value: 500
             });
 
-            try {
-                // Track: Checkout Started
-                trackLinkedInEvent('checkout_started', {
-                    product: 'audit-roi',
-                    price: 500
-                });
+            // Track: Checkout Started
+            trackLinkedInEvent('checkout_started', {
+                product: 'audit-roi',
+                price: 500
+            });
 
-                stripe.redirectToCheckout({
-                    lineItems: [{
-                        price: 'price_1SWJsAHw41v5bNHtdPud6Sy7',
-                        quantity: 1,
-                    }],
-                    mode: 'payment',
-                    successUrl: window.location.origin + '?success=true',
-                    cancelUrl: window.location.origin + '?canceled=true',
-                });
-            } catch (error) {
-                console.error('Erreur Stripe:', error);
-                alert('Erreur: ' + error.message);
-            }
+            // Redirection vers Stripe Payment Link
+            console.log('🚀 Redirection vers Stripe Payment Link...');
+            window.location.href = 'https://buy.stripe.com/eVq9ATbx0bzG0rkdHFaR200';
         }
 
         // Gestion page de succès
