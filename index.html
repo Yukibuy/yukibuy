@@ -1945,8 +1945,8 @@
         console.log('URL actuelle:', window.location.href);
         console.log('Params URL:', window.location.search);
         
-        // Configuration Stripe
-        const stripe = Stripe('pk_test_51S2JJxQb5HwBxSvGHebSzIPkZUBffnqIJ2DZHtii5arh72b3AYfpUm0Vj7voOhZIzAT7acu5vi7fTNJ7xTEJDKzD00fcqb7KGv');
+        // Configuration Stripe - MODE PRODUCTION
+        const stripe = Stripe('pk_live_51S2JJoHw41v5bNHttRqkw2Sgps19l4lX2Ql9NNB0S3un2xi3WBvIq7vctSK4n2xa7bMmtjp7ebksfVXVL7HJR7B200pYV3k3SS');
 
         // ===========================
         // LINKEDIN CONVERSION TRACKING
@@ -1983,7 +1983,7 @@
 
                 stripe.redirectToCheckout({
                     lineItems: [{
-                        price: 'price_1S2S2wQb5HwBxSvGWBeqlvcf',
+                        price: 'price_1SWJsAHw41v5bNHtdPud6Sy7',
                         quantity: 1,
                     }],
                     mode: 'payment',
