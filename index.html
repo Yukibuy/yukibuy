@@ -1947,12 +1947,40 @@
         
         // Configuration Stripe
         const stripe = Stripe('pk_test_51S2JJxQb5HwBxSvGHebSzIPkZUBffnqIJ2DZHtii5arh72b3AYfpUm0Vj7voOhZIzAT7acu5vi7fTNJ7xTEJDKzD00fcqb7KGv');
-        
+
+        // ===========================
+        // LINKEDIN CONVERSION TRACKING
+        // ===========================
+        function trackLinkedInEvent(eventName, eventData = {}) {
+            try {
+                if (typeof window.lintrk === 'function') {
+                    window.lintrk('track', { conversion_id: eventName });
+                    console.log('✅ LinkedIn Event tracked:', eventName, eventData);
+                } else {
+                    console.warn('⚠️ LinkedIn tracking not available yet');
+                }
+            } catch (error) {
+                console.error('❌ LinkedIn tracking error:', error);
+            }
+        }
+
         // FONCTION STRIPE SIMPLIFIÉE
         function testStripeButton() {
             console.log('🔥 BOUTON PRINCIPAL CLIQUÉ !');
-            
+
+            // Track: CTA Button Click
+            trackLinkedInEvent('cta_click', {
+                button: 'commander-audit',
+                value: 500
+            });
+
             try {
+                // Track: Checkout Started
+                trackLinkedInEvent('checkout_started', {
+                    product: 'audit-roi',
+                    price: 500
+                });
+
                 stripe.redirectToCheckout({
                     lineItems: [{
                         price: 'price_1S2S2wQb5HwBxSvGWBeqlvcf',
@@ -1974,11 +2002,19 @@
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('success')) {
                 console.log('✅ SUCCESS PAGE - Showing upload section');
-                document.body.innerHTML = document.getElementById('success-page').outerHTML + 
+
+                // Track: Purchase Completed (CONVERSION PRINCIPALE!)
+                trackLinkedInEvent('purchase', {
+                    product: 'audit-roi',
+                    value: 500,
+                    currency: 'EUR'
+                });
+
+                document.body.innerHTML = document.getElementById('success-page').outerHTML +
                                         document.getElementById('upload-section').outerHTML;
                 document.querySelector('.success-page').classList.add('show');
                 document.querySelector('.upload-section').style.display = 'block';
-                
+
                 // INITIALISER L'UPLOAD APRÈS AFFICHAGE !
                 console.log('🔄 Initializing upload section...');
                 initUploadSection();
@@ -1991,8 +2027,12 @@
                     initUploadSection();
                 }
             }
-            
+
             if (urlParams.get('canceled')) {
+                // Track: Checkout Canceled
+                trackLinkedInEvent('checkout_canceled', {
+                    product: 'audit-roi'
+                });
                 alert('Paiement annulé. Vous pouvez recommencer !');
             }
         });
@@ -2261,6 +2301,12 @@
                     return;
                 }
 
+                // Track: Form Submission Started
+                trackLinkedInEvent('form_submit', {
+                    form_name: 'upload-csv',
+                    files_count: selectedFiles.length
+                });
+
                 const formData = new FormData();
                 
                 // Ajouter les informations du client
@@ -2362,6 +2408,12 @@
 
                     // Résultat final
                     if (allUploadsSuccessful) {
+                        // Track: Upload Completed Successfully
+                        trackLinkedInEvent('upload_completed', {
+                            files_count: validFiles.length,
+                            form_name: 'upload-csv'
+                        });
+
                         const successMessage = `✅ Upload terminé !\n${uploadResults.join('\n')}\n\nNous analysons vos données et vous recontactons sous 48h.`;
                         showUploadStatus(successMessage, 'success');
                         uploadForm.reset();
@@ -2605,8 +2657,15 @@
             
             // Message final
             if (successCount === files.length) {
+                // Track: Upload Completed Successfully (Sequential)
+                trackLinkedInEvent('upload_completed', {
+                    files_count: files.length,
+                    form_name: 'upload-csv',
+                    upload_method: 'sequential'
+                });
+
                 showUploadStatus(`🎉 Succès ! Tous vos ${files.length} fichiers ont été envoyés un par un.\n\nNous analysons vos données et vous recontactons sous 48h.`, 'success');
-                
+
                 // Reset sécurisé avec récupération directe des éléments
                 const uploadForm = document.getElementById('upload-form');
                 const uploadedFiles = document.getElementById('uploaded-files');
