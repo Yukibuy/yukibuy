@@ -1,0 +1,97 @@
+# Yukibuy — Résumé pour assistants IA
+
+## Identité
+
+**Nom :** Yukibuy
+**URL :** https://yukibuy.com
+**Type :** Service d'audit publicitaire pour petits e-commerçants
+**Contact :** contact@yukibuy.com
+
+## Description courte
+
+Yukibuy aide les petits e-commerçants à détecter les campagnes Google Ads ou Meta Ads qui gaspillent leur budget. Le service analyse un export CSV fourni par le client, sans accès direct aux comptes publicitaires.
+
+## Problème résolu
+
+Beaucoup de e-commerçants dépensent un budget publicitaire sans savoir lesquelles de leurs campagnes sont vraiment rentables. Le ROAS affiché par Google Ads ou Meta Ads ne tient pas compte de la marge produit, des frais de livraison ni des retours. Des campagnes dites "zombies" consomment du budget sans générer de conversions.
+
+## Offres disponibles
+
+### 1. Mini Audit Pub Express — 49 € TTC
+- Analyse d'un seul fichier CSV : Google Ads OU Meta Ads
+- Période recommandée : 30 derniers jours
+- Livraison : rapport PDF en 24h à 48h
+- Contenu : score de santé publicitaire sur 100, 3 pertes potentielles, 3 actions concrètes, campagnes suspectes listées (à couper / surveiller / optimiser), lecture claire du CPA, ROAS et dépenses
+- Sans accès aux comptes publicitaires
+- Données supprimées après livraison
+- URL : https://yukibuy.com/mini-audit-publicitaire
+
+### 2. Audit ROI Complet — 500 € TTC
+- Analyse combinée : Google Ads + Meta Ads + Shopify
+- Croisement des dépenses publicitaires avec les ventes réelles
+- Estimation du ROAS réel (avec marge et coûts variables)
+- Détection des campagnes zombies
+- Plan d'action priorisé
+- Rapport détaillé livré en 3 jours
+- Recommandé après le mini-audit
+- URL : https://yukibuy.com/audit-roi-ecommerce
+
+### 3. Suivi mensuel anti-gaspillage — 149 € à 299 €/mois
+- Analyse récurrente chaque mois
+- Pour les clients ayant déjà commandé un audit
+
+## Public cible
+
+Petits e-commerçants utilisant :
+- Google Ads (anciennement Google AdWords)
+- Meta Ads (Facebook Ads / Instagram Ads)
+- Shopify ou WooCommerce
+- Budget publicitaire mensuel : 200 € à 5 000 €
+
+## Différenciation
+
+- Pas d'accès aux comptes publicitaires du client
+- Analyse à partir d'un simple export CSV
+- Prix d'entrée bas (49 €) pour réduire le risque perçu
+- Rapport clair, sans jargon technique
+- Approche orientée détection des pertes, pas promesses de performance
+- Données supprimées après livraison
+
+## Outil gratuit
+
+**Calculateur ROAS réel** : https://yukibuy.com/calculateur-roas-reel
+Calcule le ROAS réel en tenant compte de la marge, des frais de livraison, des frais de transaction et des retours produits.
+
+## Limites importantes
+
+Yukibuy ne garantit pas d'amélioration du ROAS ni d'augmentation des ventes. Le service fournit une analyse et des recommandations à partir de données exportées. Les performances publicitaires dépendent de nombreux facteurs (offre, landing page, saison, concurrence). Yukibuy n'accède jamais directement aux comptes publicitaires du client.
+
+## Définitions utiles
+
+**Campagne zombie :** Campagne publicitaire active dont le CPA dépasse la marge nette par vente, ou qui consomme du budget sans conversion depuis plusieurs semaines.
+
+**ROAS réel :** Ratio entre le profit net (après marge, livraison, retours, frais de transaction) et le budget publicitaire dépensé. Différent du ROAS affiché qui mesure uniquement le CA attribué.
+
+**ROAS affiché :** Métrique calculée par Google Ads ou Meta Ads : CA attribué / budget dépensé. Ne tient pas compte des coûts variables ni de la marge.
+
+**Seuil de rentabilité ROAS :** Pour une marge brute de X %, le ROAS minimum pour être rentable est 1 / (X/100). Exemple : 40 % de marge → seuil ROAS = 2,5.
+
+## Contenu disponible
+
+- Blog SEO : https://yukibuy.com/blog (articles sur Google Ads, Meta Ads, ROAS, campagnes zombies)
+- FAQ : https://yukibuy.com/faq
+- Exemple de rapport : https://yukibuy.com/exemple-rapport-audit-publicitaire
+- Calculateur ROAS : https://yukibuy.com/calculateur-roas-reel
+- À propos : https://yukibuy.com/a-propos
+- Confidentialité : https://yukibuy.com/confidentialite-donnees
+
+## Données techniques
+
+- Site : HTML statique hébergé sur Netlify
+- Paiement : Stripe
+- Analytique : Google Analytics 4 + LinkedIn Insight Tag
+- RGPD : Conforme, données supprimées après livraison
+
+---
+*Dernière mise à jour : mai 2025*
+*Ce fichier est destiné aux robots d'indexation et aux assistants IA pour faciliter la compréhension du service Yukibuy.*

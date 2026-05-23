@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HWG1ND7PED"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-HWG1ND7PED');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculateur ROAS réel — Mesurez la vraie rentabilité de vos campagnes | Yukibuy</title>
+  <meta name="description" content="Calculez votre ROAS réel en tenant compte de la marge, des frais de livraison et des frais variables. Outil gratuit pour e-commerçants.">
+  <link rel="canonical" href="https://yukibuy.com/calculateur-roas-reel">
+  <meta property="og:title" content="Calculateur ROAS réel gratuit — Yukibuy">
+  <meta property="og:description" content="Calculez votre ROAS réel en intégrant la marge produit, les frais de livraison et les coûts variables. Outil gratuit.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebPage","name":"Calculateur ROAS réel","url":"https://yukibuy.com/calculateur-roas-reel","description":"Outil gratuit pour calculer le ROAS réel d'une campagne publicitaire e-commerce en tenant compte de la marge et des coûts variables.","isPartOf":{"@id":"https://yukibuy.com/#website"}}
+  </script>
+  <style>
+    :root{--primary:#4338CA;--primary-light:#EEF2FF;--primary-dark:#312E81;--green:#059669;--green-light:#ECFDF5;--orange:#D97706;--orange-light:#FFFBEB;--red:#DC2626;--red-light:#FEF2F2;--text:#1E293B;--text-muted:#64748B;--border:#E2E8F0;--bg:#FFFFFF;--bg-subtle:#F8FAFC;--radius-sm:8px;--radius:12px;--shadow-sm:0 1px 3px rgba(0,0,0,.08);--shadow:0 4px 12px rgba(0,0,0,.08);}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',-apple-system,sans-serif;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}
+    .container{max-width:1160px;margin:0 auto;padding:0 24px;}
+    .container-sm{max-width:820px;margin:0 auto;padding:0 24px;}
+    .header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;height:64px;gap:24px;}
+    .logo{font-family:'Poppins',sans-serif;font-weight:800;font-size:22px;color:var(--primary);}
+    .logo span{color:var(--text);}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-family:inherit;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s;}
+    .btn-primary{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(67,56,202,.3);}
+    .btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);}
+    .btn-ghost{background:transparent;color:var(--text-muted);border:1.5px solid var(--border);}
+    .btn-ghost:hover{border-color:var(--primary);color:var(--primary);}
+    .page-hero{background:var(--bg-subtle);border-bottom:1px solid var(--border);padding:56px 0 40px;text-align:center;}
+    .page-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--primary);margin-bottom:12px;}
+    .page-title{font-family:'Poppins',sans-serif;font-size:36px;font-weight:800;color:var(--text);letter-spacing:-.5px;margin-bottom:14px;}
+    .page-subtitle{font-size:17px;color:var(--text-muted);max-width:560px;margin:0 auto;line-height:1.65;}
+    .calc-section{padding:56px 0;}
+    .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;}
+    .calc-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow-sm);}
+    .calc-card h2{font-family:'Poppins',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:24px;}
+    .form-group{margin-bottom:18px;}
+    .form-label{display:block;font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;}
+    .form-sublabel{font-size:12px;color:var(--text-muted);margin-top:2px;}
+    .input-group{position:relative;}
+    .input-prefix,.input-suffix{position:absolute;top:50%;transform:translateY(-50%);font-size:14px;font-weight:600;color:var(--text-muted);}
+    .input-prefix{left:12px;}
+    .input-suffix{right:12px;}
+    .form-control{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;color:var(--text);transition:border-color .15s;}
+    .form-control.with-prefix{padding-left:28px;}
+    .form-control.with-suffix{padding-right:28px;}
+    .form-control:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(67,56,202,.1);}
+    .divider{height:1px;background:var(--border);margin:20px 0;}
+    .result-card{background:var(--bg);border:2px solid var(--primary);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow);}
+    .result-card h2{font-family:'Poppins',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:24px;}
+    .result-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);}
+    .result-row:last-of-type{border-bottom:none;}
+    .result-label{font-size:14px;color:var(--text-muted);}
+    .result-value{font-size:18px;font-weight:800;color:var(--text);}
+    .result-value.green{color:var(--green);}
+    .result-value.red{color:var(--red);}
+    .result-value.orange{color:var(--orange);}
+    .result-main{text-align:center;padding:24px 0;margin-bottom:16px;}
+    .result-roas-number{font-family:'Poppins',sans-serif;font-size:64px;font-weight:800;line-height:1;}
+    .result-roas-label{font-size:14px;color:var(--text-muted);margin-top:4px;}
+    .diagnosis-box{padding:16px;border-radius:var(--radius-sm);margin-top:20px;font-size:14px;line-height:1.6;}
+    .diagnosis-box.green{background:var(--green-light);border:1px solid #A7F3D0;color:#065F46;}
+    .diagnosis-box.orange{background:var(--orange-light);border:1px solid #FDE68A;color:#92400E;}
+    .diagnosis-box.red{background:var(--red-light);border:1px solid #FECACA;color:var(--red);}
+    .calc-cta{margin-top:24px;padding:20px;background:var(--primary-light);border-radius:var(--radius-sm);text-align:center;}
+    .calc-cta p{font-size:14px;color:var(--text-muted);margin-bottom:12px;}
+    .explainer{padding:56px 0;background:var(--bg-subtle);}
+    .explainer-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
+    .explainer-item{padding:24px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);}
+    .explainer-item h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px;}
+    .explainer-item p{font-size:14px;color:var(--text-muted);line-height:1.7;}
+    .footer{background:var(--text);padding:40px 0 24px;color:#CBD5E1;}
+    .footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:13px;color:#64748B;}
+    @media(max-width:760px){.calc-grid{grid-template-columns:1fr;}.explainer-grid{grid-template-columns:1fr;}.page-title{font-size:28px;}}
+  </style>
+</head>
+<body>
+<header class="header">
+  <div class="container">
+    <div class="header-inner">
+      <a href="/" class="logo">Yuki<span>buy</span></a>
+      <div style="display:flex;gap:12px;">
+        <a href="/mini-audit-publicitaire" class="btn btn-ghost" style="display:none;" id="nav-audit">Mini-audit 49 €</a>
+        <a href="https://buy.stripe.com/bJebJ18kO6fma1UdHFaR201" class="btn btn-primary">Lancer mon audit →</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="page-label">Outil gratuit</div>
+    <h1 class="page-title">Calculateur de ROAS réel</h1>
+    <p class="page-subtitle">Calculez la vraie rentabilité de vos campagnes publicitaires en tenant compte de la marge, des frais de livraison et de tous vos coûts variables.</p>
+  </div>
+</div>
+
+<section class="calc-section">
+  <div class="container-sm">
+    <div class="calc-grid">
+      <!-- INPUTS -->
+      <div class="calc-card">
+        <h2><i class="fas fa-sliders-h" style="color:var(--primary);margin-right:10px;"></i>Vos données</h2>
+
+        <div class="form-group">
+          <label class="form-label">Budget publicitaire dépensé</label>
+          <div class="input-group">
+            <span class="input-prefix">€</span>
+            <input type="number" class="form-control with-prefix" id="budget" placeholder="500" min="0" step="1" oninput="calculate()">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Chiffre d'affaires attribué</label>
+          <div class="form-sublabel">Chiffre d'affaires total attribué à cette campagne par la plateforme</div>
+          <div class="input-group">
+            <span class="input-prefix">€</span>
+            <input type="number" class="form-control with-prefix" id="revenue" placeholder="1800" min="0" step="1" oninput="calculate()">
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="form-group">
+          <label class="form-label">Marge brute sur le produit</label>
+          <div class="form-sublabel">% du prix de vente restant après coût d'achat ou de fabrication</div>
+          <div class="input-group">
+            <input type="number" class="form-control with-suffix" id="margin" placeholder="40" min="0" max="100" step="1" oninput="calculate()">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Frais de livraison moyens par commande</label>
+          <div class="input-group">
+            <span class="input-prefix">€</span>
+            <input type="number" class="form-control with-prefix" id="shipping" placeholder="6" min="0" step="0.5" oninput="calculate()">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Frais de transaction (Stripe, PayPal…)</label>
+          <div class="input-group">
+            <input type="number" class="form-control with-suffix" id="transaction" placeholder="1.5" min="0" max="10" step="0.1" oninput="calculate()">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Taux de retours produits</label>
+          <div class="input-group">
+            <input type="number" class="form-control with-suffix" id="returns" placeholder="5" min="0" max="100" step="1" oninput="calculate()">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Commandes générées (optionnel)</label>
+          <div class="form-sublabel">Pour calculer le CPA</div>
+          <input type="number" class="form-control" id="orders" placeholder="18" min="0" step="1" oninput="calculate()">
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="result-area">
+        <div class="result-card" id="result-card">
+          <h2><i class="fas fa-chart-line" style="color:var(--primary);margin-right:10px;"></i>Résultats</h2>
+
+          <div class="result-main">
+            <div class="result-roas-number" id="roas-display" style="color:var(--text-muted);">—</div>
+            <div class="result-roas-label">ROAS réel (après coûts)</div>
+          </div>
+
+          <div class="result-row">
+            <span class="result-label">ROAS affiché (brut)</span>
+            <span class="result-value" id="roas-gross">—</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Marge brute générée</span>
+            <span class="result-value" id="gross-margin">—</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Coûts variables totaux</span>
+            <span class="result-value" id="total-costs">—</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">Profit estimé</span>
+            <span class="result-value" id="profit">—</span>
+          </div>
+          <div class="result-row" id="cpa-row" style="display:none;">
+            <span class="result-label">CPA réel</span>
+            <span class="result-value" id="cpa-display">—</span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">ROAS seuil de rentabilité</span>
+            <span class="result-value" id="breakeven">—</span>
+          </div>
+
+          <div class="diagnosis-box" id="diagnosis" style="display:none;"></div>
+
+          <div class="calc-cta" id="calc-cta" style="display:none;">
+            <p>Vous voulez vérifier la rentabilité de vos vraies campagnes ?</p>
+            <a href="https://buy.stripe.com/bJebJ18kO6fma1UdHFaR201" class="btn btn-primary" onclick="gtag('event','cta_click',{event_label:'calculator'})">
+              <i class="fas fa-chart-bar"></i> Lancer mon mini-audit — 49 €
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="explainer">
+  <div class="container-sm">
+    <h2 style="font-family:'Poppins',sans-serif;font-size:26px;font-weight:700;color:var(--text);text-align:center;margin-bottom:32px;">Pourquoi calculer le ROAS réel ?</h2>
+    <div class="explainer-grid">
+      <div class="explainer-item">
+        <h3>Le ROAS affiché ignore vos coûts réels</h3>
+        <p>Google Ads et Meta Ads affichent le chiffre d'affaires attribué divisé par le budget publicitaire. Ils ne tiennent pas compte de votre marge produit, des frais de livraison, des retours ou des frais de transaction. Résultat : un ROAS de 3 peut cacher une perte réelle.</p>
+      </div>
+      <div class="explainer-item">
+        <h3>Le seuil de rentabilité varie selon votre marge</h3>
+        <p>Pour une marge brute de 40 %, votre seuil de rentabilité ROAS est d'environ 2,5. Pour 25 % de marge, il monte à 4. Toute campagne en dessous de ce seuil vous fait perdre de l'argent sur chaque vente financée par la publicité.</p>
+      </div>
+      <div class="explainer-item">
+        <h3>Le ROAS réel vous aide à prendre de meilleures décisions</h3>
+        <p>Savoir quel est votre ROAS réel vous permet de comparer vos campagnes sur une base équitable, d'identifier celles qui sont réellement rentables et de décider où réallouer votre budget publicitaire.</p>
+      </div>
+      <div class="explainer-item">
+        <h3>Comment utiliser ce calculateur ?</h3>
+        <p>Renseignez les données d'une campagne spécifique ou de l'ensemble de vos campagnes sur une période (30 jours recommandés). Plus vos données sont précises, plus le résultat est fiable. Utilisez des moyennes si vous n'avez pas les données exactes.</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:40px;">
+      <p style="font-size:15px;color:var(--text-muted);margin-bottom:16px;">Pour aller plus loin, analysez vos vraies campagnes avec le mini-audit Yukibuy.</p>
+      <a href="https://buy.stripe.com/bJebJ18kO6fma1UdHFaR201" class="btn btn-primary" style="padding:14px 28px;font-size:16px;">
+        <i class="fas fa-chart-bar"></i> Lancer mon mini-audit — 49 €
+      </a>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:10px;">Pas d'accès à vos comptes · Un seul fichier CSV · Livraison 24h–48h</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <a href="/" style="font-family:'Poppins',sans-serif;font-weight:800;font-size:18px;color:white;">Yukibuy</a>
+      <p>© 2025 Yukibuy · <a href="/" style="color:#94A3B8;">Accueil</a> · <a href="/mini-audit-publicitaire" style="color:#94A3B8;">Mini-audit 49 €</a> · <a href="/faq" style="color:#94A3B8;">FAQ</a></p>
+    </div>
+  </div>
+</footer>
+
+<script>
+function fmt(n){return n.toFixed(2).replace('.',',');}
+function fmtInt(n){return Math.round(n).toLocaleString('fr-FR');}
+
+function calculate(){
+  const budget = parseFloat(document.getElementById('budget').value) || 0;
+  const revenue = parseFloat(document.getElementById('revenue').value) || 0;
+  const marginPct = parseFloat(document.getElementById('margin').value) || 0;
+  const shippingPerOrder = parseFloat(document.getElementById('shipping').value) || 0;
+  const transactionPct = parseFloat(document.getElementById('transaction').value) || 0;
+  const returnsPct = parseFloat(document.getElementById('returns').value) || 0;
+  const orders = parseFloat(document.getElementById('orders').value) || 0;
+
+  if (!budget || !revenue || !marginPct) {
+    resetResults();
+    return;
+  }
+
+  const roasGross = revenue / budget;
+
+  // Effective revenue after returns
+  const effectiveRevenue = revenue * (1 - returnsPct / 100);
+
+  // Costs
+  const grossMarginAmount = effectiveRevenue * (marginPct / 100);
+  const transactionCost = effectiveRevenue * (transactionPct / 100);
+  const shippingCost = orders > 0 ? orders * shippingPerOrder : (effectiveRevenue / (revenue / Math.max(orders,1))) * shippingPerOrder;
+  const totalVariableCosts = budget + transactionCost + (orders > 0 ? shippingCost : 0);
+
+  const profit = grossMarginAmount - totalVariableCosts;
+
+  const roasReal = effectiveRevenue / budget;
+  const breakeven = marginPct > 0 ? (1 / (marginPct / 100)).toFixed(2) : '—';
+
+  // Display
+  const roasColor = profit > 0 ? 'var(--green)' : profit > -100 ? 'var(--orange)' : 'var(--red)';
+  document.getElementById('roas-display').textContent = fmt(roasReal);
+  document.getElementById('roas-display').style.color = roasColor;
+  document.getElementById('roas-gross').textContent = fmt(roasGross);
+  document.getElementById('gross-margin').textContent = '€' + fmtInt(grossMarginAmount);
+  document.getElementById('total-costs').textContent = '€' + fmtInt(totalVariableCosts);
+
+  const profitEl = document.getElementById('profit');
+  profitEl.textContent = (profit >= 0 ? '+' : '') + '€' + fmtInt(profit);
+  profitEl.className = 'result-value ' + (profit > 0 ? 'green' : profit > -50 ? 'orange' : 'red');
+
+  document.getElementById('breakeven').textContent = 'ROAS ' + breakeven;
+
+  if (orders > 0) {
+    document.getElementById('cpa-row').style.display = 'flex';
+    const cpaReal = budget / orders;
+    const cpaEl = document.getElementById('cpa-display');
+    cpaEl.textContent = '€' + fmt(cpaReal);
+  }
+
+  // Diagnosis
+  const diagBox = document.getElementById('diagnosis');
+  diagBox.style.display = 'block';
+  const bk = parseFloat(breakeven);
+  if (profit > 0) {
+    diagBox.className = 'diagnosis-box green';
+    diagBox.innerHTML = `<strong>✓ Campagne rentable.</strong> Votre ROAS réel de ${fmt(roasReal)} est supérieur au seuil de rentabilité (${fmt(bk)}). Vous générez un profit estimé de €${fmtInt(profit)} sur cette période.`;
+  } else if (roasReal >= bk * 0.8) {
+    diagBox.className = 'diagnosis-box orange';
+    diagBox.innerHTML = `<strong>⚠ Campagne à surveiller.</strong> Votre ROAS réel (${fmt(roasReal)}) est proche mais en dessous du seuil de rentabilité (${fmt(bk)}). La campagne perd environ €${fmtInt(Math.abs(profit))} sur la période. Vérifiez vos coûts et votre ciblage.`;
+  } else {
+    diagBox.className = 'diagnosis-box red';
+    diagBox.innerHTML = `<strong>✗ Campagne déficitaire.</strong> Votre ROAS réel (${fmt(roasReal)}) est inférieur au seuil de rentabilité (${fmt(bk)}). La campagne génère une perte estimée de €${fmtInt(Math.abs(profit))}. Elle mérite une analyse approfondie avant d'augmenter le budget.`;
+  }
+
+  document.getElementById('calc-cta').style.display = 'block';
+  gtag('event', 'calculator_used', {event_category: 'engagement', value: Math.round(profit)});
+}
+
+function resetResults(){
+  ['roas-display','roas-gross','gross-margin','total-costs','profit','breakeven'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.textContent = '—';
+  });
+  document.getElementById('diagnosis').style.display = 'none';
+  document.getElementById('calc-cta').style.display = 'none';
+  document.getElementById('cpa-row').style.display = 'none';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HWG1ND7PED"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-HWG1ND7PED');</script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exemple de rapport d'audit publicitaire — Yukibuy</title>
+  <meta name="description" content="Aperçu d'un rapport mini-audit Yukibuy : score de santé publicitaire, campagnes suspectes, pertes estimées et recommandations concrètes. Basé sur des données anonymisées.">
+  <link rel="canonical" href="https://yukibuy.com/exemple-rapport-audit-publicitaire">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--primary:#4338CA;--primary-light:#EEF2FF;--primary-dark:#312E81;--green:#059669;--green-light:#ECFDF5;--orange:#D97706;--orange-light:#FFFBEB;--red:#DC2626;--red-light:#FEF2F2;--text:#1E293B;--text-muted:#64748B;--border:#E2E8F0;--bg:#FFFFFF;--bg-subtle:#F8FAFC;--radius-sm:8px;--radius:12px;--shadow:0 4px 12px rgba(0,0,0,.08);--shadow-md:0 8px 24px rgba(0,0,0,.10);}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',-apple-system,sans-serif;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none;}
+    .container{max-width:1160px;margin:0 auto;padding:0 24px;}
+    .container-sm{max-width:900px;margin:0 auto;padding:0 24px;}
+    .header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;height:64px;}
+    .logo{font-family:'Poppins',sans-serif;font-weight:800;font-size:22px;color:var(--primary);}
+    .logo span{color:var(--text);}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);font-family:inherit;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s;text-decoration:none;}
+    .btn-primary{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(67,56,202,.3);}
+    .btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);}
+    .btn-primary-lg{background:var(--primary);color:#fff;padding:16px 32px;font-size:17px;border-radius:var(--radius);box-shadow:0 4px 16px rgba(67,56,202,.35);}
+    .btn-primary-lg:hover{background:var(--primary-dark);transform:translateY(-2px);}
+    .page-hero{background:var(--bg-subtle);border-bottom:1px solid var(--border);padding:56px 0 40px;text-align:center;}
+    .page-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--primary);margin-bottom:12px;}
+    .page-title{font-family:'Poppins',sans-serif;font-size:34px;font-weight:800;color:var(--text);letter-spacing:-.5px;margin-bottom:12px;}
+    .page-subtitle{font-size:16px;color:var(--text-muted);max-width:560px;margin:0 auto;line-height:1.65;}
+    .disclaimer{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:8px 16px;background:var(--orange-light);border:1px solid #FED7AA;border-radius:100px;font-size:13px;color:#92400E;font-weight:500;}
+    .report-section{padding:64px 0;}
+    /* RAPPORT SIMULÉ */
+    .report-doc{background:var(--bg);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-md);overflow:hidden;}
+    .report-doc-header{background:var(--primary);padding:28px 32px;color:white;}
+    .report-doc-header h1{font-family:'Poppins',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+    .report-doc-header p{font-size:14px;opacity:.75;}
+    .report-doc-meta{display:flex;gap:24px;margin-top:16px;flex-wrap:wrap;}
+    .report-meta-item{font-size:13px;opacity:.85;}
+    .report-meta-item strong{font-weight:700;}
+    .report-doc-body{padding:32px;}
+    .report-page-break{border-top:2px dashed var(--border);margin:36px 0;position:relative;}
+    .report-page-break::after{content:'Page suivante';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--bg);padding:0 12px;font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+    .score-section{display:flex;gap:32px;align-items:center;padding:24px;background:var(--bg-subtle);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:28px;}
+    .score-big-circle{width:100px;height:100px;border-radius:50%;background:conic-gradient(#D97706 0% 73%,#E2E8F0 73%);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .score-big-inner{width:76px;height:76px;background:white;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    .score-big-num{font-family:'Poppins',sans-serif;font-size:28px;font-weight:800;color:var(--text);line-height:1;}
+    .score-big-denom{font-size:11px;color:var(--text-muted);}
+    .score-details h3{font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px;}
+    .score-details p{font-size:14px;color:var(--text-muted);line-height:1.65;}
+    .score-tag{display:inline-block;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;background:var(--orange-light);color:var(--orange);border:1px solid #FED7AA;margin-top:8px;}
+    .section-h2{font-family:'Poppins',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+    .section-h2 .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .campaigns-table{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:24px;}
+    .campaigns-table th{background:var(--bg-subtle);padding:12px 16px;font-size:12px;font-weight:700;color:var(--text-muted);text-align:left;border-bottom:1px solid var(--border);}
+    .campaigns-table td{padding:12px 16px;font-size:14px;border-bottom:1px solid var(--border);}
+    .campaigns-table tr:last-child td{border-bottom:none;}
+    .tag{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;}
+    .tag.cut{background:var(--red);color:white;}
+    .tag.watch{background:var(--orange);color:white;}
+    .tag.ok{background:var(--green);color:white;}
+    .tag.optimize{background:var(--primary);color:white;}
+    .loss-item{padding:16px 20px;background:var(--red-light);border:1px solid #FECACA;border-radius:var(--radius-sm);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+    .loss-item-text h4{font-size:14px;font-weight:700;color:var(--text);}
+    .loss-item-text p{font-size:13px;color:var(--text-muted);margin-top:4px;}
+    .loss-amount{font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:var(--red);white-space:nowrap;}
+    .action-item{padding:16px 20px;background:var(--green-light);border:1px solid #BBF7D0;border-radius:var(--radius-sm);margin-bottom:12px;display:flex;gap:14px;align-items:flex-start;}
+    .action-num{width:28px;height:28px;background:var(--green);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;}
+    .action-item h4{font-size:14px;font-weight:700;color:var(--text);}
+    .action-item p{font-size:13px;color:var(--text-muted);margin-top:4px;line-height:1.55;}
+    .cta-banner{background:linear-gradient(135deg,var(--primary) 0%,#6366F1 100%);padding:40px;text-align:center;color:white;}
+    .cta-banner h2{font-family:'Poppins',sans-serif;font-size:24px;font-weight:700;margin-bottom:10px;}
+    .cta-banner p{font-size:15px;opacity:.85;margin-bottom:24px;}
+    .btn-white{background:white;color:var(--primary);padding:14px 28px;font-size:16px;font-weight:700;border-radius:var(--radius-sm);border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:all .2s;}
+    .btn-white:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.15);}
+    .footer{background:var(--text);padding:32px 0 20px;color:#CBD5E1;}
+    .footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:13px;color:#64748B;}
+    @media(max-width:640px){.score-section{flex-direction:column;text-align:center;}.page-title{font-size:26px;}.campaigns-table{font-size:12px;}.loss-item{flex-direction:column;}.report-doc-body{padding:20px;}}
+  </style>
+</head>
+<body>
+<header class="header">
+  <div class="container">
+    <div class="header-inner">
+      <a href="/" class="logo">Yuki<span>buy</span></a>
+      <a href="/mini-audit-publicitaire" class="btn btn-primary" onclick="gtag('event','cta_click',{event_label:'example-report-header'})">Commander le vrai rapport — 49 €</a>
+    </div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="page-label">Aperçu du rapport</div>
+    <h1 class="page-title">Exemple de rapport mini-audit</h1>
+    <p class="page-subtitle">Voici à quoi ressemble un rapport Yukibuy. Les données, campagnes et chiffres sont fictifs et servent uniquement d'illustration.</p>
+    <div class="disclaimer">⚠ Données fictives et anonymisées — à titre d'exemple uniquement</div>
+  </div>
+</div>
+
+<section class="report-section">
+  <div class="container-sm">
+    <div class="report-doc">
+      <!-- HEADER RAPPORT -->
+      <div class="report-doc-header">
+        <h1>Mini Audit Pub Express</h1>
+        <p>Rapport d'analyse publicitaire — Exemple fictif</p>
+        <div class="report-doc-meta">
+          <div class="report-meta-item"><strong>Plateforme :</strong> Google Ads</div>
+          <div class="report-meta-item"><strong>Période :</strong> 30 derniers jours</div>
+          <div class="report-meta-item"><strong>Date de livraison :</strong> J+1 après réception CSV</div>
+          <div class="report-meta-item"><strong>Boutique :</strong> [Nom anonymisé]</div>
+        </div>
+      </div>
+
+      <div class="report-doc-body">
+        <!-- PAGE 1 : SCORE -->
+        <div class="score-section">
+          <div class="score-big-circle">
+            <div class="score-big-inner">
+              <span class="score-big-num">73</span>
+              <span class="score-big-denom">/100</span>
+            </div>
+          </div>
+          <div class="score-details">
+            <h3>Score de santé publicitaire</h3>
+            <p>3 signaux de gaspillage détectés. Une campagne à couper immédiatement, une à surveiller. Budget probablement gaspillé estimé à <strong>~280 €/mois</strong>.</p>
+            <span class="score-tag">⚠ Peut mieux faire — Corrections prioritaires identifiées</span>
+          </div>
+        </div>
+
+        <h2 style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;">Résumé exécutif</h2>
+        <p style="font-size:15px;color:var(--text-muted);line-height:1.75;margin-bottom:24px;">Sur les 30 derniers jours, 3 campagnes sur 5 présentent des signaux problématiques. La campagne "Soldes Été — Shopping FR" n'a généré aucune conversion malgré 340 € dépensés. Le ROAS global est de 2,1, ce qui, selon une marge estimée à 35-40 %, est en dessous du seuil de rentabilité. Une correction immédiate permettrait d'économiser environ 280 €/mois.</p>
+
+        <div class="report-page-break"></div>
+
+        <!-- PAGE 2 : CAMPAGNES -->
+        <h2 class="section-h2" style="margin-top:8px;"><span class="dot" style="background:var(--orange);"></span>Campagnes analysées</h2>
+        <table class="campaigns-table">
+          <thead>
+            <tr>
+              <th>Campagne</th>
+              <th>Dépense</th>
+              <th>Conversions</th>
+              <th>ROAS</th>
+              <th>CPA</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Soldes Été — Shopping FR</strong></td>
+              <td>340 €</td>
+              <td style="color:var(--red);font-weight:700;">0</td>
+              <td style="color:var(--red);">—</td>
+              <td style="color:var(--red);">∞</td>
+              <td><span class="tag cut">À couper</span></td>
+            </tr>
+            <tr>
+              <td><strong>Retargeting FR — Panier</strong></td>
+              <td>178 €</td>
+              <td>2</td>
+              <td style="color:var(--orange);">1,2</td>
+              <td style="color:var(--orange);">89 €</td>
+              <td><span class="tag watch">À surveiller</span></td>
+            </tr>
+            <tr>
+              <td><strong>Brand Search France</strong></td>
+              <td>64 €</td>
+              <td>19</td>
+              <td style="color:var(--green);">4,8</td>
+              <td style="color:var(--green);">12 €</td>
+              <td><span class="tag ok">OK</span></td>
+            </tr>
+            <tr>
+              <td><strong>Collection Automne — Display</strong></td>
+              <td>96 €</td>
+              <td>3</td>
+              <td>1,8</td>
+              <td>32 €</td>
+              <td><span class="tag optimize">À optimiser</span></td>
+            </tr>
+            <tr>
+              <td><strong>Nouveautés — Performance Max</strong></td>
+              <td>122 €</td>
+              <td>8</td>
+              <td style="color:var(--green);">3,1</td>
+              <td>15 €</td>
+              <td><span class="tag ok">OK</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="report-page-break"></div>
+
+        <!-- PAGE 3 : PERTES -->
+        <h2 class="section-h2" style="margin-top:8px;"><span class="dot" style="background:var(--red);"></span>3 pertes potentielles identifiées</h2>
+
+        <div class="loss-item">
+          <div class="loss-item-text">
+            <h4>Perte #1 — Campagne sans conversion active</h4>
+            <p>"Soldes Été — Shopping FR" a dépensé 340 € sur 30 jours sans générer une seule conversion. Elle est probablement sur des requêtes trop larges ou un ciblage obsolète.</p>
+          </div>
+          <div class="loss-amount">~340 €/mois</div>
+        </div>
+
+        <div class="loss-item">
+          <div class="loss-item-text">
+            <h4>Perte #2 — Retargeting sous seuil de rentabilité</h4>
+            <p>"Retargeting FR — Panier" génère un ROAS de 1,2, probablement en dessous du seuil de rentabilité réel (estimé autour de ROAS 2,5 pour une marge de ~40 %). Perte estimée sur cette campagne.</p>
+          </div>
+          <div class="loss-amount">~50 €/mois</div>
+        </div>
+
+        <div class="loss-item" style="background:var(--orange-light);border-color:#FED7AA;">
+          <div class="loss-item-text">
+            <h4>Perte #3 — Display à optimiser (signal modéré)</h4>
+            <p>"Collection Automne — Display" a un ROAS de 1,8. Il ne s'agit pas d'une urgence mais d'une campagne à surveiller. Un ajustement des enchères ou du ciblage audience pourrait améliorer le ratio.</p>
+          </div>
+          <div class="loss-amount" style="color:var(--orange);">~30 €/mois</div>
+        </div>
+
+        <div class="report-page-break"></div>
+
+        <!-- PAGE 4 : ACTIONS -->
+        <h2 class="section-h2" style="margin-top:8px;"><span class="dot" style="background:var(--green);"></span>3 actions prioritaires</h2>
+
+        <div class="action-item">
+          <div class="action-num">1</div>
+          <div>
+            <h4>Mettre en pause immédiatement "Soldes Été — Shopping FR"</h4>
+            <p>Cette campagne n'a généré aucune conversion sur 30 jours pour 340 € dépensés. Elle doit être mise en pause sans délai. Analysez ensuite les mots-clés déclencheurs pour identifier si une refonte de la structure est pertinente avant relance.</p>
+          </div>
+        </div>
+
+        <div class="action-item">
+          <div class="action-num">2</div>
+          <div>
+            <h4>Réduire le budget "Retargeting FR — Panier" de 50 %</h4>
+            <p>Avec un ROAS de 1,2 et un CPA de 89 €, cette campagne est probablement déficitaire. Réduisez le budget à 90 €/mois et ajustez les audiences retargeting (exclure les acheteurs des 30 derniers jours, réduire la fenêtre de retargeting à 7 jours).</p>
+          </div>
+        </div>
+
+        <div class="action-item">
+          <div class="action-num">3</div>
+          <div>
+            <h4>Réallouer le budget libéré vers "Brand Search" et "Nouveautés PMax"</h4>
+            <p>Les deux campagnes performantes (ROAS 4,8 et 3,1) peuvent absorber un budget supplémentaire. Augmentez de 20 à 30 % le budget de "Brand Search France" en priorité — c'est votre campagne la plus rentable.</p>
+          </div>
+        </div>
+
+        <div style="background:var(--bg-subtle);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-top:24px;">
+          <h4 style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px;">Note sur ce rapport</h4>
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.7;">Ces recommandations sont basées sur les données exportées fournies. Elles constituent des signaux et des pistes d'action, pas des certitudes absolues. Les performances réelles dépendent de nombreux facteurs (offre, landing page, saisonnalité, concurrence). Yukibuy ne garantit pas d'amélioration du ROAS.</p>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-banner">
+        <h2>Votre rapport sera basé sur vos vraies données</h2>
+        <p>Envoyez votre export CSV Google Ads ou Meta Ads. Recevez votre rapport personnalisé en 24h–48h.</p>
+        <a href="/mini-audit-publicitaire" class="btn-white" onclick="gtag('event','cta_click',{event_label:'example-report-cta'})">
+          <i class="fas fa-credit-card"></i> Commander mon mini-audit — 49 €
+        </a>
+        <p style="font-size:13px;opacity:.7;margin-top:12px;">Pas d'accès à vos comptes · Un seul fichier CSV · Données supprimées après analyse</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <a href="/" style="font-family:'Poppins',sans-serif;font-weight:800;font-size:18px;color:white;">Yukibuy</a>
+      <p>© 2025 Yukibuy · <a href="/" style="color:#94A3B8;">Accueil</a> · <a href="/mini-audit-publicitaire" style="color:#94A3B8;">Commander</a> · <a href="/faq" style="color:#94A3B8;">FAQ</a></p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

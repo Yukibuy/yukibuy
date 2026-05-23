@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yukibuy.com/sitemap.xml
+
+# Bloquer les pages de succès/upload
+Disallow: /?success=1
+Disallow: /?canceled=1

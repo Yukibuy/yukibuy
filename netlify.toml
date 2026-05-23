@@ -5,6 +5,13 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# Pretty URLs (clean URLs without .html extension)
+[build.processing]
+  skip_processing = false
+
+[build.processing.html]
+  pretty_urls = true
+
 # Redirections pour les functions
 [[redirects]]
   from = "/api/*"
@@ -16,6 +23,33 @@
   from = "/upload"
   to = "/.netlify/functions/upload-csv"
   status = 200
+
+# Sitemap and llms.txt
+[[redirects]]
+  from = "/sitemap"
+  to = "/sitemap.xml"
+  status = 301
+
+# Page redirects (explicit for SEO)
+[[redirects]]
+  from = "/mini-audit"
+  to = "/mini-audit-publicitaire"
+  status = 301
+
+[[redirects]]
+  from = "/audit"
+  to = "/mini-audit-publicitaire"
+  status = 301
+
+[[redirects]]
+  from = "/calculateur"
+  to = "/calculateur-roas-reel"
+  status = 301
+
+[[redirects]]
+  from = "/exemple"
+  to = "/exemple-rapport-audit-publicitaire"
+  status = 301
 
 # Headers de sécurité
 [[headers]]
